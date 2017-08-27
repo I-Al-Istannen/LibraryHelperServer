@@ -60,9 +60,10 @@ public interface BookDatabase {
    * Lends the book to a person.
    *
    * @param isbn The {@link Isbn} of the book
-   * @param lender The person you lend it to
+   * @param borrower The person borrowing it
+   * @throws IllegalArgumentException if the book is not in the database
    */
-  void lendBook(Isbn isbn, String lender);
+  void lendBook(Isbn isbn, String borrower);
 
   /**
    * Marks the book as back, after it was lend to somebody.

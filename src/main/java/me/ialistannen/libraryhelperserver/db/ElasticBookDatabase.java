@@ -44,6 +44,7 @@ public class ElasticBookDatabase implements BookDatabase {
 
   private Map<String, StandardBookDataKeys> keyLookupTable = Util
       .getEnumLookupTable(StandardBookDataKeys.class, Enum::name);
+  private ComplexDeserializers complexDeserializers;
 
   private TransportClient client;
   private Gson gson;
@@ -51,6 +52,8 @@ public class ElasticBookDatabase implements BookDatabase {
   public ElasticBookDatabase(TransportClient transportClient) {
     this.client = transportClient;
     this.gson = new GsonBuilder().create();
+
+    this.complexDeserializers = new ComplexDeserializers();
   }
 
   @Override
@@ -106,7 +109,13 @@ public class ElasticBookDatabase implements BookDatabase {
         key = new StringBookDataKey(entry.getKey());
       }
 
-      book.setData(key, entry.getValue());
+      Object keyValue = entry.getValue();
+
+      if (complexDeserializers.hasDeserializer(key)) {
+        keyValue = complexDeserializers.deserialize(key, keyValue);
+      }
+
+      book.setData(key, keyValue);
     }
     return book;
   }
@@ -188,6 +197,10 @@ public class ElasticBookDatabase implements BookDatabase {
 
   @Override
   public void storeBook(LoanableBook book) {
+    if (book.getKey() == null) {
+      throw new IllegalArgumentException("The book has no key (" + book + ")");
+    }
+
     String json = gson.toJson(book.getAllData());
 
     IndexResponse indexResponse = client
@@ -212,7 +225,7 @@ public class ElasticBookDatabase implements BookDatabase {
   }
 
   @Override
-  public void lendBook(Isbn isbn, String lender) {
+  public void lendBook(Isbn isbn, String borrower) {
 
   }
 

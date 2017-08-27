@@ -10,7 +10,7 @@ import me.ialistannen.isbnlookuplib.isbn.Isbn;
  */
 public class LoanableBook extends Book implements Identifiable<String> {
 
-  private static final BookDataKey IDENTIFIER_KEY = new StringBookDataKey("ISBN_STRING");
+  private static final BookDataKey IDENTIFIER_KEY = StandardBookDataKeys.ISBN_STRING;
 
   @Override
   public void setData(BookDataKey key, Object value) {

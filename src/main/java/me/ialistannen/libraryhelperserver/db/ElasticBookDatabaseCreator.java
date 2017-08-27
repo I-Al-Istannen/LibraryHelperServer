@@ -77,6 +77,7 @@ public class ElasticBookDatabaseCreator {
                 .startObject()
                   .startObject(TYPE_BOOK)
                     .startObject("properties")
+
                       .startObject(StandardBookDataKeys.TITLE.name())
                         .field("type", "text")
                         .startObject("fields")
@@ -86,6 +87,7 @@ public class ElasticBookDatabaseCreator {
                           .endObject()
                         .endObject()
                       .endObject()
+
                       .startObject(StandardBookDataKeys.AUTHORS.name())
                         .field("type", "nested")
                         .startObject("properties")
@@ -100,6 +102,7 @@ public class ElasticBookDatabaseCreator {
                           .endObject()
                         .endObject()
                       .endObject()
+
                     .endObject()
                   .endObject()
                 .endObject()
