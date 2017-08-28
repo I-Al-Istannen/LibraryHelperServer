@@ -7,6 +7,8 @@ import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
 import me.ialistannen.isbnlookuplib.util.Pair;
 import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelperserver.db.BookDatabaseBrowser;
+import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator;
 import org.elasticsearch.client.transport.TransportClient;
@@ -21,6 +23,19 @@ public class Server {
 
   public static void main(String[] args) throws UnknownHostException {
     TransportClient client = getClient();
+
+    new ElasticBookDatabaseMutator(client).addBook(getLoanableBook2());
+
+    sleepToAllowElasticToCatchUpBadWay();
+
+    BookDatabaseBrowser browser = new ElasticBookDatabaseBrowser(client);
+    System.out.println(browser.getAllBooksLimited());
+    System.out.println();
+    System.out.println(browser.getAllBooksFully());
+
+    if ("".isEmpty()) {
+      return;
+    }
 
     new ElasticDatabaseCreator().create(client.admin().indices());
 
@@ -49,6 +64,23 @@ public class Server {
         Arrays.asList(
             new Pair<>("Cornelia Funke", "Author"),
             new Pair<>("Max Mustermann", "Übersetzer")
+        )
+    );
+    return book;
+  }
+
+  private static LoanableBook getLoanableBook2() {
+    LoanableBook book = new LoanableBook();
+    book.setData(StandardBookDataKeys.TITLE, "Test 2");
+    book.setData(
+        StandardBookDataKeys.ISBN,
+        new IsbnConverter().fromString("978-3791500119").get()
+    );
+    book.setData(
+        StandardBookDataKeys.AUTHORS,
+        Arrays.asList(
+            new Pair<>("R.A. Salvator", "Author"),
+            new Pair<>("John Doe", "Übersetzer")
         )
     );
     return book;

@@ -29,7 +29,6 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
     this.client = client;
 
     this.gson = IntermediaryBook.configureGson(new GsonBuilder())
-
         .create();
   }
 
@@ -47,7 +46,7 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
           .setSource(json, XContentType.JSON)
           .get();
 
-      assertIsOkay(indexResponse, "Could not index a book: " + book);
+      assertIsOkay(indexResponse, "Could not index a book: " + book + ", response was '%s.'");
     }
   }
 
@@ -63,7 +62,7 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
 
   private void assertIsOkay(StatusToXContentObject response, String message) {
     if (response.status() != RestStatus.OK && response.status() != RestStatus.CREATED) {
-      throw new DatabaseException(message);
+      throw new DatabaseException(String.format(message, response.status()));
     }
   }
 
@@ -80,7 +79,8 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
         isbn.getDigitsAsString()
     ).get();
 
-    assertIsOkay(deleteResponse, "Could not delete the book with ISBN: " + isbn);
+    assertIsOkay(deleteResponse,
+        "Could not delete the book with ISBN: " + isbn + ". Status: '%s'.");
   }
 
   @Override
