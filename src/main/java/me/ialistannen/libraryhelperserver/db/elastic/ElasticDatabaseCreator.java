@@ -59,7 +59,7 @@ public class ElasticDatabaseCreator {
     }
   }
 
-  private String loadStringData(String location) {
+  private String loadStringData(@SuppressWarnings("SameParameterValue") String location) {
     try (InputStream resourceAsStream = getClass().getResourceAsStream(location);
         InputStreamReader inputStreamReader = new InputStreamReader(resourceAsStream);
         BufferedReader reader = new BufferedReader(inputStreamReader)) {

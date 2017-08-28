@@ -2,23 +2,23 @@ package me.ialistannen.libraryhelperserver.db.elastic;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Base64;
 import java.util.Collection;
+import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.libraryhelperserver.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.book.StringBookDataKey;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
+import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
+import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.xcontent.StatusToXContentObject;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.rest.RestStatus;
 
 /**
- * A {@link BookDatabaseMutator} for the Elasticsearch database
+ * A {@link BookDatabaseMutator} for the Elasticsearch database.
  */
 public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
 
@@ -36,28 +36,13 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
   @Override
   public void addBooks(Collection<LoanableBook> books) {
     for (LoanableBook book : books) {
-      book.setData(new StringBookDataKey("A_- Test"), "HOPEFULLY");
-      book.setData(new StringBookDataKey("A_- Test-Double"), 2.09);
+      Isbn isbn = ensureGetIsbnFromBook(book);
 
-      System.out.printf("%-30s | %-30s | %s\n", "Original: ", md5(book.toString()), book);
-      System.out.println();
-
-      System.out.printf("%-30s | %-30s | %s\n", "Serialized original: ", md5(gson.toJson(book)),
-          gson.toJson(book));
       String json = gson.toJson(IntermediaryBook.fromLoanableBook(book));
-      System.out.printf("%-30s | %-30s | %s\n", "Serialized intermediary: ", md5(json), json);
-
-      System.out.println();
-      IntermediaryBook intermediaryBook = gson.fromJson(json, IntermediaryBook.class);
-      System.out.printf("%-30s | %-30s | %s\n", "Deserialized intermediary: ",
-          md5(intermediaryBook.toString()), intermediaryBook);
-      System.out.printf("%-30s | %-30s | %s\n", "Deserialized original: ",
-          md5(intermediaryBook.toLoanableBook().toString()), intermediaryBook.toLoanableBook());
-
       IndexResponse indexResponse = client.prepareIndex(
           StringConstant.INDEX_NAME.getValue(),
           StringConstant.TYPE_NAME.getValue(),
-          intermediaryBook.isbn.getDigitsAsString()
+          isbn.getDigitsAsString()
       )
           .setSource(json, XContentType.JSON)
           .get();
@@ -66,35 +51,49 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
     }
   }
 
-  private void assertIsOkay(IndexResponse indexResponse, String message) {
-    if (indexResponse.status() != RestStatus.OK && indexResponse.status() != RestStatus.CREATED) {
-      throw new DatabaseException(message);
+  private Isbn ensureGetIsbnFromBook(LoanableBook book) {
+    Isbn isbn = book.getData(StandardBookDataKeys.ISBN);
+
+    if (isbn == null) {
+      throw new IllegalArgumentException("The book needs to have an ISBN: " + book);
     }
+
+    return isbn;
   }
 
-  private String md5(String input) {
-    try {
-      return Base64.getMimeEncoder()
-          .encodeToString(MessageDigest.getInstance("md5").digest(input.getBytes()));
-    } catch (NoSuchAlgorithmException e) {
-      e.printStackTrace();
-      return "ERROR";
+  private void assertIsOkay(StatusToXContentObject response, String message) {
+    if (response.status() != RestStatus.OK && response.status() != RestStatus.CREATED) {
+      throw new DatabaseException(message);
     }
   }
 
   @Override
   public void deleteBook(LoanableBook book) {
-
+    deleteBookByIsbn(ensureGetIsbnFromBook(book));
   }
 
   @Override
   public void deleteBookByIsbn(Isbn isbn) {
+    DeleteResponse deleteResponse = client.prepareDelete(
+        StringConstant.INDEX_NAME.getValue(),
+        StringConstant.TYPE_NAME.name(),
+        isbn.getDigitsAsString()
+    ).get();
 
+    assertIsOkay(deleteResponse, "Could not delete the book with ISBN: " + isbn);
   }
 
   @Override
   public void deleteAll() {
+    DeleteIndexResponse deleteResponse = client.admin().indices()
+        .prepareDelete(StringConstant.INDEX_NAME.getValue())
+        .get();
 
+    if (!deleteResponse.isAcknowledged()) {
+      throw new DatabaseException("Could not clear index: Not acknowledged");
+    }
+
+    new ElasticDatabaseCreator().create(client.admin().indices());
   }
 
 }

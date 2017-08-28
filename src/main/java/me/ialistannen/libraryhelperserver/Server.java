@@ -24,7 +24,12 @@ public class Server {
 
     new ElasticDatabaseCreator().create(client.admin().indices());
 
-    new ElasticBookDatabaseMutator(client).addBook(getLoanableBook());
+    ElasticBookDatabaseMutator elasticBookDatabaseMutator = new ElasticBookDatabaseMutator(client);
+    elasticBookDatabaseMutator.addBook(getLoanableBook());
+
+    sleepToAllowElasticToCatchUpBadWay();
+
+    elasticBookDatabaseMutator.deleteAll();
   }
 
   private static TransportClient getClient() throws UnknownHostException {
@@ -47,5 +52,13 @@ public class Server {
         )
     );
     return book;
+  }
+
+  private static void sleepToAllowElasticToCatchUpBadWay() {
+    try {
+      Thread.sleep(2000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 }
