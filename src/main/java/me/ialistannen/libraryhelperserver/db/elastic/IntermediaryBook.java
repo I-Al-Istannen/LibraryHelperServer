@@ -32,7 +32,7 @@ import me.ialistannen.libraryhelperserver.book.StringBookDataKey;
 /**
  * A class that mediates between {@link LoanableBook}s and a serialize form.
  */
-class IntermediaryBook {
+public class IntermediaryBook {
 
   private static final Set<BookDataKey> STANDARD_KEYS = new HashSet<BookDataKey>() {{
     add(BorrowerKey.INSTANCE);
@@ -143,7 +143,7 @@ class IntermediaryBook {
    * @param builder The {@link GsonBuilder}
    * @return The same {@link GsonBuilder}
    */
-  static GsonBuilder configureGson(GsonBuilder builder) {
+  public static GsonBuilder configureGson(GsonBuilder builder) {
     return builder.setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .enableComplexMapKeySerialization()
         .registerTypeAdapter(IntermediaryBook.class, Deserializer.INSTANCE)

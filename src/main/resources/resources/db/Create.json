@@ -24,6 +24,15 @@
             }
           }
         },
+        "title": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "text",
+              "analyzer": "raw_lowercase"
+            }
+          }
+        },
         "authors": {
           "type": "nested",
           "properties": {

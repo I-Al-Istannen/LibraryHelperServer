@@ -1,7 +1,5 @@
 package me.ialistannen.libraryhelperserver.db.elastic;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.Collection;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
@@ -9,13 +7,12 @@ import me.ialistannen.libraryhelperserver.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
+import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.xcontent.StatusToXContentObject;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.rest.RestStatus;
 
 /**
  * A {@link BookDatabaseMutator} for the Elasticsearch database.
@@ -23,13 +20,9 @@ import org.elasticsearch.rest.RestStatus;
 public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
 
   private TransportClient client;
-  private Gson gson;
 
   public ElasticBookDatabaseMutator(TransportClient client) {
     this.client = client;
-
-    this.gson = IntermediaryBook.configureGson(new GsonBuilder())
-        .create();
   }
 
   @Override
@@ -37,7 +30,7 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
     for (LoanableBook book : books) {
       Isbn isbn = ensureGetIsbnFromBook(book);
 
-      String json = gson.toJson(IntermediaryBook.fromLoanableBook(book));
+      String json = DatabaseUtil.toJson(book);
       IndexResponse indexResponse = client.prepareIndex(
           StringConstant.INDEX_NAME.getValue(),
           StringConstant.TYPE_NAME.getValue(),
@@ -46,7 +39,8 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
           .setSource(json, XContentType.JSON)
           .get();
 
-      assertIsOkay(indexResponse, "Could not index a book: " + book + ", response was '%s.'");
+      DatabaseUtil
+          .assertIsOkay(indexResponse, "Could not index a book: " + book + ", response was '%s.'");
     }
   }
 
@@ -58,12 +52,6 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
     }
 
     return isbn;
-  }
-
-  private void assertIsOkay(StatusToXContentObject response, String message) {
-    if (response.status() != RestStatus.OK && response.status() != RestStatus.CREATED) {
-      throw new DatabaseException(String.format(message, response.status()));
-    }
   }
 
   @Override
@@ -79,7 +67,7 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
         isbn.getDigitsAsString()
     ).get();
 
-    assertIsOkay(deleteResponse,
+    DatabaseUtil.assertIsOkay(deleteResponse,
         "Could not delete the book with ISBN: " + isbn + ". Status: '%s'.");
   }
 

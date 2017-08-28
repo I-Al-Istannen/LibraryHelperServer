@@ -142,7 +142,7 @@
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>IsbnLookupLib</artifactId>
-      <version>90e4445a27</version>
+      <version>00530fbf58</version>
     </dependency>
 
     <!--GSON-->

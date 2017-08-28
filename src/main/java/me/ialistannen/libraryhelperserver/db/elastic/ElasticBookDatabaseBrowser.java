@@ -1,7 +1,5 @@
 package me.ialistannen.libraryhelperserver.db.elastic;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -9,14 +7,12 @@ import java.util.stream.Collectors;
 import me.ialistannen.libraryhelperserver.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
-import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
-import me.ialistannen.libraryhelperserver.db.queries.Query;
+import me.ialistannen.libraryhelperserver.db.elastic.queries.Query;
+import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.common.xcontent.StatusToXContentObject;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
@@ -26,13 +22,9 @@ import org.elasticsearch.search.SearchHits;
 public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
 
   private final TransportClient client;
-  private final Gson gson;
 
   public ElasticBookDatabaseBrowser(TransportClient client) {
     this.client = client;
-
-    this.gson = IntermediaryBook.configureGson(new GsonBuilder())
-        .create();
   }
 
   @Override
@@ -43,20 +35,15 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
         .setSize(100)
         .get();
 
-    assertIsOkay(searchResponse, "Was not able to return all books. Status: '%s'.");
+    DatabaseUtil.assertIsOkay(searchResponse, "Was not able to return all books. Status: '%s'.");
 
     SearchHits hits = searchResponse.getHits();
 
     return Arrays.stream(hits.getHits())
-        .map(this::searchHitToBook)
+        .map(DatabaseUtil::searchHitToBook)
         .collect(Collectors.toList());
   }
 
-  private LoanableBook searchHitToBook(SearchHit searchHit) {
-    String json = searchHit.getSourceAsString();
-
-    return gson.fromJson(json, IntermediaryBook.class).toLoanableBook();
-  }
 
   @Override
   public List<LoanableBook> getAllBooksFully() {
@@ -69,10 +56,10 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
 
     List<LoanableBook> results = new ArrayList<>();
     do {
-      assertIsOkay(searchResponse, "Search failed. Status: '%s'");
+      DatabaseUtil.assertIsOkay(searchResponse, "Search failed. Status: '%s'");
 
       for (SearchHit hit : searchResponse.getHits().getHits()) {
-        results.add(searchHitToBook(hit));
+        results.add(DatabaseUtil.searchHitToBook(hit));
       }
 
       searchResponse = client.prepareSearchScroll(searchResponse.getScrollId())
@@ -87,11 +74,5 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
   @Override
   public <T> T getForQuery(Query<T> query) {
     return query.makeQuery(client);
-  }
-
-  private void assertIsOkay(StatusToXContentObject response, String message) {
-    if (response.status() != RestStatus.OK && response.status() != RestStatus.CREATED) {
-      throw new DatabaseException(String.format(message, response.status()));
-    }
   }
 }
