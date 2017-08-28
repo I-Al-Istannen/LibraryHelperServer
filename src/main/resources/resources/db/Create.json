@@ -1,0 +1,44 @@
+{
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "raw_lowercase": {
+          "type": "custom",
+          "tokenizer": "keyword",
+          "filter": [
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "book": {
+      "properties": {
+        "isbn": {
+          "type": "text",
+          "fields": {
+            "raw": {
+              "type": "text",
+              "analyzer": "raw_lowercase"
+            }
+          }
+        },
+        "authors": {
+          "type": "nested",
+          "properties": {
+            "key": {
+              "type": "text",
+              "fields": {
+                "raw": {
+                  "type": "text",
+                  "analyzer": "raw_lowercase"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
