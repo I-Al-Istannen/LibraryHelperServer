@@ -13,9 +13,9 @@ import org.elasticsearch.search.SearchHits;
  */
 public class QueryByIsbn extends Query<Optional<LoanableBook>> {
 
-  private Isbn isbn;
+  private String isbn;
 
-  private QueryByIsbn(Isbn isbn) {
+  private QueryByIsbn(String isbn) {
     this.isbn = isbn;
   }
 
@@ -23,7 +23,7 @@ public class QueryByIsbn extends Query<Optional<LoanableBook>> {
   public Optional<LoanableBook> makeQuery(TransportClient client) {
     SearchHits searchResponse = search(client, QueryBuilders.termQuery(
         "isbn",
-        this.isbn.getDigitsAsString()
+        isbn
     ));
 
     List<LoanableBook> books = hitsToBooks(searchResponse);
@@ -40,6 +40,14 @@ public class QueryByIsbn extends Query<Optional<LoanableBook>> {
    * @return An instance of the query
    */
   public static QueryByIsbn forIsbn(Isbn isbn) {
+    return forIsbn(isbn.getDigitsAsString());
+  }
+
+  /**
+   * @param isbn The ISBN to search for
+   * @return An instance of the query
+   */
+  public static QueryByIsbn forIsbn(String isbn) {
     return new QueryByIsbn(isbn);
   }
 }

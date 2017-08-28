@@ -47,4 +47,11 @@ public class DatabaseUtil {
   public static String toJson(LoanableBook book) {
     return gson.toJson(IntermediaryBook.fromLoanableBook(book));
   }
+
+  /**
+   * @return The {@link Gson} instance able to serialize books
+   */
+  public static Gson getGson() {
+    return gson;
+  }
 }
