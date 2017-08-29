@@ -3,7 +3,7 @@ package me.ialistannen.libraryhelperserver.db.elastic.queries;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import org.elasticsearch.action.search.SearchResponse;

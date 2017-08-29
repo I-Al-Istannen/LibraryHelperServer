@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import me.ialistannen.isbnlookuplib.util.Optional;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.QueryByAuthorWildcards;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.QueryByIsbn;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.QueryByTitleRegex;

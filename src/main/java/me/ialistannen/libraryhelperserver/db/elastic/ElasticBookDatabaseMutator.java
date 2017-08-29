@@ -3,7 +3,7 @@ package me.ialistannen.libraryhelperserver.db.elastic;
 import java.util.Collection;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;

@@ -145,6 +145,13 @@
       <version>00530fbf58</version>
     </dependency>
 
+    <!--COMMON CORE-->
+    <dependency>
+      <groupId>com.github.I-Al-Istannen</groupId>
+      <artifactId>LibaryHelperCommon</artifactId>
+      <version>ae3a020eb5</version>
+    </dependency>
+
     <!--GSON-->
     <dependency>
       <groupId>com.google.code.gson</groupId>

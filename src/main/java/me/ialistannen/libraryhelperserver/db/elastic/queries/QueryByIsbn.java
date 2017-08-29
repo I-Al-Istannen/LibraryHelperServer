@@ -3,7 +3,7 @@ package me.ialistannen.libraryhelperserver.db.elastic.queries;
 import java.util.List;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.isbnlookuplib.util.Optional;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHits;

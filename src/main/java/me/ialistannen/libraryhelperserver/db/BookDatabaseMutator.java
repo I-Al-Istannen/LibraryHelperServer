@@ -3,7 +3,7 @@ package me.ialistannen.libraryhelperserver.db;
 import java.util.Collection;
 import java.util.Collections;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
 
 /**

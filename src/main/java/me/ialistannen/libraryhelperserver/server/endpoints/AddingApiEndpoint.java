@@ -3,7 +3,7 @@ package me.ialistannen.libraryhelperserver.server.endpoints;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import me.ialistannen.isbnlookuplib.util.Optional;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;

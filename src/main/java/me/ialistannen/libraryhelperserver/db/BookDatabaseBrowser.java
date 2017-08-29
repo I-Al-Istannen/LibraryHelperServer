@@ -1,7 +1,7 @@
 package me.ialistannen.libraryhelperserver.db;
 
 import java.util.List;
-import me.ialistannen.libraryhelperserver.book.LoanableBook;
+import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.Query;
 
 /**
