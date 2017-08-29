@@ -20,6 +20,12 @@ public class HttpStatusSender {
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }
 
+  public static void internalServerError(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
+
+    Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
+  }
+
   private static class HttpStatusContainer {
 
     int statusCode;
