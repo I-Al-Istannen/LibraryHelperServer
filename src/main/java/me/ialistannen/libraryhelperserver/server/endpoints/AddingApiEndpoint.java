@@ -50,10 +50,7 @@ public class AddingApiEndpoint implements HttpHandler {
     } catch (DatabaseException e) {
       LOGGER.log(Level.WARN, "A database error occurred trying to store this book: " + book, e);
 
-      HttpStatusSender.internalServerError(
-          exchange,
-          "An internal server error occurred while processing your request :/"
-      );
+      HttpStatusSender.internalServerError(exchange);
     } catch (IllegalArgumentException ignored) {
       HttpStatusSender.badRequest(
           exchange,

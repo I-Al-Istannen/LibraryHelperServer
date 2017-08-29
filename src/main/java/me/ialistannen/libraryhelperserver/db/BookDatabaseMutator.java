@@ -33,17 +33,19 @@ public interface BookDatabaseMutator {
    * Deletes the given book from the database, if it exists.
    *
    * @param book The book to delete.
+   * @return true if the book was deleted, false if it was not found
    * @throws DatabaseException If an error occurs while deleting it
    */
-  void deleteBook(LoanableBook book);
+  boolean deleteBook(LoanableBook book);
 
   /**
    * Deletes the given book from the database, if it exists.
    *
    * @param isbn The {@link Isbn} of the book to delete.
+   * @return true if the book was deleted, false if it was not found
    * @throws DatabaseException If an error occurs while deleting it
    */
-  void deleteBookByIsbn(Isbn isbn);
+  boolean deleteBookByIsbn(Isbn isbn);
 
   /**
    * Deletes everything from the database.

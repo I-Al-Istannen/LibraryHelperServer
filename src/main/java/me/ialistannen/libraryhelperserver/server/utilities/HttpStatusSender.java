@@ -20,7 +20,8 @@ public class HttpStatusSender {
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }
 
-  public static void internalServerError(HttpServerExchange exchange, String message) {
+  public static void internalServerError(HttpServerExchange exchange) {
+    String message = "An internal server error occurred while processing your request :/";
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
 
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));

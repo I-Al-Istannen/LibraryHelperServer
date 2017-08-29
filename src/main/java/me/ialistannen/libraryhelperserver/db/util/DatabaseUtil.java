@@ -28,7 +28,8 @@ public class DatabaseUtil {
    * @throws DatabaseException if the status is not OK or CREATED
    */
   public static void assertIsOkay(StatusToXContentObject response, String message) {
-    if (response.status() != RestStatus.OK && response.status() != RestStatus.CREATED) {
+    if (response.status() != RestStatus.OK
+        && response.status() != RestStatus.CREATED) {
       throw new DatabaseException(String.format(message, response.status()));
     }
   }

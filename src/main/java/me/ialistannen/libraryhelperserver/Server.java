@@ -12,6 +12,7 @@ import me.ialistannen.libraryhelperserver.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.server.endpoints.AddingApiEndpoint;
+import me.ialistannen.libraryhelperserver.server.endpoints.DeletingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.SearchApiEndpoint;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
@@ -33,6 +34,7 @@ public class Server {
             .get("/test", exchange -> exchange.getResponseSender().send("Magic?"))
             .get("/search", new SearchApiEndpoint(client))
             .put("/add", new AddingApiEndpoint(mutator))
+            .delete("/delete", new DeletingApiEndpoint(new IsbnConverter(), mutator))
         )
         .build();
 

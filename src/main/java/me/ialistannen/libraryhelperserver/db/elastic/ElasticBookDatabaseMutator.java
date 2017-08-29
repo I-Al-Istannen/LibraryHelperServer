@@ -8,6 +8,7 @@ import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
+import org.elasticsearch.action.DocWriteResponse.Result;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.index.IndexResponse;
@@ -55,20 +56,26 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
   }
 
   @Override
-  public void deleteBook(LoanableBook book) {
-    deleteBookByIsbn(ensureGetIsbnFromBook(book));
+  public boolean deleteBook(LoanableBook book) {
+    return deleteBookByIsbn(ensureGetIsbnFromBook(book));
   }
 
   @Override
-  public void deleteBookByIsbn(Isbn isbn) {
+  public boolean deleteBookByIsbn(Isbn isbn) {
     DeleteResponse deleteResponse = client.prepareDelete(
         StringConstant.INDEX_NAME.getValue(),
-        StringConstant.TYPE_NAME.name(),
+        StringConstant.TYPE_NAME.getValue(),
         isbn.getDigitsAsString()
     ).get();
 
+    if (deleteResponse.getResult() == Result.NOT_FOUND) {
+      return false;
+    }
+
     DatabaseUtil.assertIsOkay(deleteResponse,
         "Could not delete the book with ISBN: " + isbn + ". Status: '%s'.");
+
+    return deleteResponse.getResult() == Result.DELETED;
   }
 
   @Override
@@ -83,5 +90,4 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
 
     new ElasticDatabaseCreator().create(client.admin().indices());
   }
-
 }
