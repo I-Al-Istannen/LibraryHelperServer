@@ -2,6 +2,7 @@ package me.ialistannen.libraryhelperserver;
 
 import io.undertow.Handlers;
 import io.undertow.Undertow;
+import io.undertow.server.RoutingHandler;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -29,13 +30,14 @@ public class Server {
 
     BookDatabaseMutator mutator = new ElasticBookDatabaseMutator(client);
 
+    RoutingHandler handler = Handlers.routing()
+        .get("/test", exchange -> exchange.getResponseSender().send("Magic?"))
+        .get("/search", new SearchApiEndpoint(client))
+        .put("/add", new AddingApiEndpoint(mutator))
+        .delete("/delete", new DeletingApiEndpoint(new IsbnConverter(), mutator));
     Undertow undertow = Undertow.builder()
-        .addHttpListener(8080, "localhost", Handlers.routing()
-            .get("/test", exchange -> exchange.getResponseSender().send("Magic?"))
-            .get("/search", new SearchApiEndpoint(client))
-            .put("/add", new AddingApiEndpoint(mutator))
-            .delete("/delete", new DeletingApiEndpoint(new IsbnConverter(), mutator))
-        )
+        .addHttpListener(8080, "localhost", handler)
+        .addHttpListener(8080, "192.168.188.48", handler)
         .build();
 
     new Thread(undertow::start).start();

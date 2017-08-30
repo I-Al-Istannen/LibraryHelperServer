@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import me.ialistannen.isbnlookuplib.util.Optional;
+import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.QueryByAuthorWildcards;
 import me.ialistannen.libraryhelperserver.db.elastic.queries.QueryByIsbn;
@@ -63,7 +65,11 @@ public class SearchApiEndpoint implements HttpHandler {
       return;
     }
 
-    List<LoanableBook> books = searchTypes.get(searchType.get()).apply(query);
+    List<IntermediaryBook> books = searchTypes.get(searchType.get())
+        .apply(query)
+        .stream()
+        .map(IntermediaryBook::fromLoanableBook)
+        .collect(Collectors.toList());
 
     String json = DatabaseUtil.getGson().toJson(books);
 
