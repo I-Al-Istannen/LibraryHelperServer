@@ -36,8 +36,7 @@ public class Server {
         .put("/add", new AddingApiEndpoint(mutator))
         .delete("/delete", new DeletingApiEndpoint(new IsbnConverter(), mutator));
     Undertow undertow = Undertow.builder()
-        .addHttpListener(8080, "localhost", handler)
-        .addHttpListener(8080, "192.168.188.48", handler)
+        .addHttpListener(8080, "0.0.0.0", handler)
         .build();
 
     new Thread(undertow::start).start();

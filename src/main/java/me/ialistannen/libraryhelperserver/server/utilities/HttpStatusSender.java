@@ -17,6 +17,7 @@ public class HttpStatusSender {
   public static void badRequest(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(400, message);
 
+    exchange.setStatusCode(httpStatusContainer.statusCode);
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }
 
@@ -24,6 +25,7 @@ public class HttpStatusSender {
     String message = "An internal server error occurred while processing your request :/";
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
 
+    exchange.setStatusCode(httpStatusContainer.statusCode);
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }
 
