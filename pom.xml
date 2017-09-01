@@ -138,18 +138,11 @@
       <version>1.4.18.Final</version>
     </dependency>
 
-    <!--ISBN LOOKUP LIBRARY-->
-    <dependency>
-      <groupId>com.github.I-Al-Istannen</groupId>
-      <artifactId>IsbnLookupLib</artifactId>
-      <version>00530fbf58</version>
-    </dependency>
-
     <!--COMMON CORE-->
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>LibaryHelperCommon</artifactId>
-      <version>d43a9944a3</version>
+      <version>b34962ab14</version>
     </dependency>
 
     <!--GSON-->

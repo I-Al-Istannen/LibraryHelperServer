@@ -2,6 +2,7 @@ package me.ialistannen.libraryhelperserver.db;
 
 import java.util.Collection;
 import java.util.Collections;
+import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
@@ -16,6 +17,7 @@ public interface BookDatabaseMutator {
    *
    * @param book The book to add
    * @throws DatabaseException If an error occurs while adding it
+   * @throws IllegalArgumentException if the book has no {@link StandardBookDataKeys#ISBN}
    */
   default void addBook(LoanableBook book) {
     addBooks(Collections.singletonList(book));
@@ -26,6 +28,7 @@ public interface BookDatabaseMutator {
    *
    * @param books The books to add
    * @throws DatabaseException If an error occurs while adding them
+   * @throws IllegalArgumentException if the book has no {@link StandardBookDataKeys#ISBN}
    */
   void addBooks(Collection<LoanableBook> books);
 
