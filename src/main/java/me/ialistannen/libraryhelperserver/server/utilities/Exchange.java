@@ -6,7 +6,7 @@ package me.ialistannen.libraryhelperserver.server.utilities;
 public class Exchange {
 
   //@formatter:off
-  public interface BodyImpl extends JsonSender {}
+  public interface BodyImpl extends JsonSender, JsonReader {}
   private static BodyImpl BODY = new BodyImpl() {};
   //@formatter:on
 

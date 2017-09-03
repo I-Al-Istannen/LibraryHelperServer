@@ -1,13 +1,17 @@
 package me.ialistannen.libraryhelperserver.server.endpoints;
 
+import com.google.gson.JsonObject;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import me.ialistannen.isbnlookuplib.book.Book;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
+import me.ialistannen.isbnlookuplib.isbn.Isbn;
+import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
+import me.ialistannen.isbnlookuplib.lookup.IsbnLookupProvider;
 import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
-import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
@@ -23,9 +27,14 @@ public class AddingApiEndpoint implements HttpHandler {
   private static final Logger LOGGER = LogManager.getLogger(AddingApiEndpoint.class);
 
   private BookDatabaseMutator databaseMutator;
+  private IsbnConverter isbnConverter;
+  private IsbnLookupProvider isbnLookupProvider;
 
-  public AddingApiEndpoint(BookDatabaseMutator databaseMutator) {
+  public AddingApiEndpoint(BookDatabaseMutator databaseMutator, IsbnConverter isbnConverter,
+      IsbnLookupProvider isbnLookupProvider) {
     this.databaseMutator = databaseMutator;
+    this.isbnConverter = isbnConverter;
+    this.isbnLookupProvider = isbnLookupProvider;
   }
 
   @Override
@@ -35,14 +44,32 @@ public class AddingApiEndpoint implements HttpHandler {
       return;
     }
     exchange.startBlocking();
-    Optional<LoanableBook> bookOptional = DatabaseUtil.fromJson(exchange.getInputStream());
+    JsonObject jsonObject = Exchange.body().readTree(exchange);
 
-    if (!bookOptional.isPresent()) {
+    if (jsonObject == null || !jsonObject.has("isbn")) {
       HttpStatusSender.badRequest(exchange, "Invalid json received!");
       return;
     }
 
-    LoanableBook book = bookOptional.get();
+    String isbnString = jsonObject.getAsJsonPrimitive("isbn").getAsString();
+
+    Optional<Isbn> isbnOptional = isbnConverter.fromString(isbnString);
+
+    if (!isbnOptional.isPresent()) {
+      HttpStatusSender.badRequest(exchange, "Invalid ISBN!");
+      return;
+    }
+
+    Isbn isbn = isbnOptional.get();
+
+    Optional<Book> bookOptional = isbnLookupProvider.lookup(isbn);
+
+    if (!bookOptional.isPresent()) {
+      Exchange.body().sendJson(exchange, MapBuilder.of("message", "Isbn lookup failed.").build());
+      return;
+    }
+
+    LoanableBook book = new LoanableBook(bookOptional.get());
 
     try {
       databaseMutator.addBook(book);

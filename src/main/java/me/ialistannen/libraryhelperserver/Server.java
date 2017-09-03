@@ -7,8 +7,10 @@ import io.undertow.server.handlers.accesslog.AccessLogHandler;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Locale;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
+import me.ialistannen.isbnlookuplib.lookup.providers.amazon.AmazonIsbnLookupProvider;
 import me.ialistannen.isbnlookuplib.util.Pair;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
@@ -33,11 +35,13 @@ public class Server {
 
     BookDatabaseMutator mutator = new ElasticBookDatabaseMutator(client);
 
+    IsbnConverter isbnConverter = new IsbnConverter();
     RoutingHandler routes = Handlers.routing()
         .get("/test", exchange -> exchange.getResponseSender().send("Magic?"))
         .get("/search", new SearchApiEndpoint(client))
-        .put("/add", new AddingApiEndpoint(mutator))
-        .delete("/delete", new DeletingApiEndpoint(new IsbnConverter(), mutator));
+        .put("/add", new AddingApiEndpoint(mutator, isbnConverter,
+            new AmazonIsbnLookupProvider(Locale.GERMAN, isbnConverter)))
+        .delete("/delete", new DeletingApiEndpoint(isbnConverter, mutator));
 
     AccessLogHandler rootHandler = new AccessLogHandler(
         routes,
