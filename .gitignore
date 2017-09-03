@@ -3,3 +3,4 @@ out/
 target/
 *.iml
 dependency-reduced-pom.xml
+/src/main/resources/application_used.conf
