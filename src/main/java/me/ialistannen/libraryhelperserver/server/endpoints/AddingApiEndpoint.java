@@ -2,6 +2,7 @@ package me.ialistannen.libraryhelperserver.server.endpoints;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
@@ -45,6 +46,7 @@ public class AddingApiEndpoint implements HttpHandler {
 
     try {
       databaseMutator.addBook(book);
+      LOGGER.info("Added book with ISBN " + book.getAllData().get(StandardBookDataKeys.ISBN));
 
       Exchange.body().sendJson(exchange, MapBuilder.of("acknowledged", true).build());
     } catch (DatabaseException e) {

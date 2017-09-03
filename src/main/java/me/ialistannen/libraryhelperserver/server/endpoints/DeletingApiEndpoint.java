@@ -41,8 +41,9 @@ public class DeletingApiEndpoint implements HttpHandler {
     }
 
     try {
+      boolean value = databaseMutator.deleteBookByIsbn(isbn.get());
       Exchange.body().sendJson(exchange,
-          MapBuilder.of("deleted", databaseMutator.deleteBookByIsbn(isbn.get()))
+          MapBuilder.of("deleted", value).build()
       );
     } catch (DatabaseException e) {
       LOGGER.log(
