@@ -10,7 +10,6 @@ import io.undertow.server.handlers.resource.FileResourceManager;
 import io.undertow.server.handlers.resource.ResourceHandler;
 import io.undertow.server.handlers.resource.ResourceManager;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 import me.ialistannen.libraryhelperserver.server.utilities.Log4JAccessLogReceiver;
 import me.ialistannen.libraryhelperserver.util.Configs;
@@ -44,11 +43,7 @@ public class CustomHandlers {
   }
 
   public static HttpHandler resource(String prefix) {
-    Path path = Paths.get(
-        Configs.getCustom().getString("assets.basepath")
-            .replace("~", System.getProperty("user.home"))
-    )
-        .toAbsolutePath()
+    Path path = Configs.getCustomAsPath("assets.basepath")
         .resolve(prefix);
 
     LOGGER.info("Base path is '{}'", path.toString());

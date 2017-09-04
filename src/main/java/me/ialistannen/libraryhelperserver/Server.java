@@ -37,7 +37,7 @@ public class Server {
 
   public static void main(String[] args) throws UnknownHostException {
     PathHandler pathHandler = new PathHandler(wrapWithBasicHandlers(getRoutingHandler()))
-        .addPrefixPath("/images", CustomHandlers.resource("covers"));
+        .addPrefixPath("/cover", CustomHandlers.resource("covers"));
 
     Undertow undertow = Undertow.builder()
         .addHttpListener(8080, "0.0.0.0", pathHandler)

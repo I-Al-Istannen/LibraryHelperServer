@@ -2,6 +2,8 @@ package me.ialistannen.libraryhelperserver.util;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,16 @@ public class Configs {
 
   public static Config getCustom() {
     return custom;
+  }
+
+  /**
+   * @param key The key
+   * @return The {@link Path} for the given key
+   */
+  public static Path getCustomAsPath(String key) {
+    return Paths.get(getCustom().getString(key)
+        .replace("~", System.getProperty("user.home"))
+    ).toAbsolutePath();
   }
 
   private static class Builder {

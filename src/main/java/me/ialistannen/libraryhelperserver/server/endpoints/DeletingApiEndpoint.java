@@ -2,6 +2,9 @@ package me.ialistannen.libraryhelperserver.server.endpoints;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Deque;
 import java.util.function.Function;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
@@ -11,6 +14,7 @@ import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
+import me.ialistannen.libraryhelperserver.util.Configs;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -45,6 +49,9 @@ public class DeletingApiEndpoint implements HttpHandler {
       Exchange.body().sendJson(exchange,
           MapBuilder.of("deleted", value).build()
       );
+      if (value) {
+        deleteCover(isbn.get());
+      }
     } catch (DatabaseException e) {
       LOGGER.log(
           Level.WARN,
@@ -62,5 +69,17 @@ public class DeletingApiEndpoint implements HttpHandler {
       }
       return isbnConverter.fromString(strings.getFirst());
     };
+  }
+
+  private void deleteCover(Isbn isbn) {
+    Path targetPath = Configs.getCustomAsPath("assets.basepath")
+        .resolve("covers")
+        .resolve(isbn.getDigitsAsString());
+
+    try {
+      Files.deleteIfExists(targetPath);
+    } catch (IOException e) {
+      LOGGER.log(Level.WARN, "Could not delete cover '" + isbn.getDigitsAsString() + "'", e);
+    }
   }
 }
