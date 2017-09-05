@@ -11,10 +11,13 @@ import java.net.UnknownHostException;
 import java.util.Locale;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
 import me.ialistannen.isbnlookuplib.lookup.providers.amazon.AmazonIsbnLookupProvider;
+import me.ialistannen.libraryhelperserver.db.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
+import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.server.endpoints.AddingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.DeletingApiEndpoint;
+import me.ialistannen.libraryhelperserver.server.endpoints.LendingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.SearchApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.CustomHandlers;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.HandlerChain;
@@ -50,14 +53,18 @@ public class Server {
     TransportClient client = getClient();
 
     BookDatabaseMutator mutator = new ElasticBookDatabaseMutator(client);
+    BookDatabaseBrowser browser = new ElasticBookDatabaseBrowser(client);
     IsbnConverter isbnConverter = new IsbnConverter();
 
+    LendingApiEndpoint lendingApiEndpoint = new LendingApiEndpoint(isbnConverter, mutator, browser);
     return Handlers.routing()
         .get("/test", exchange -> exchange.getResponseSender().send("Magic?"))
         .get("/search", new SearchApiEndpoint(client))
         .put("/add", new AddingApiEndpoint(mutator, isbnConverter,
             new AmazonIsbnLookupProvider(Locale.GERMAN, isbnConverter)))
-        .delete("/delete", new DeletingApiEndpoint(isbnConverter, mutator));
+        .delete("/delete", new DeletingApiEndpoint(isbnConverter, mutator))
+        .delete("/lending", lendingApiEndpoint)
+        .put("/lending", lendingApiEndpoint);
   }
 
   private static TransportClient getClient() throws UnknownHostException {

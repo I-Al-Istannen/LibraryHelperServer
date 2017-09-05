@@ -47,11 +47,6 @@ public class AddingApiEndpoint implements HttpHandler {
 
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    if (exchange.isInIoThread()) {
-      exchange.dispatch(this);
-      return;
-    }
-    exchange.startBlocking();
     JsonObject jsonObject = Exchange.body().readTree(exchange);
 
     if (jsonObject == null || !jsonObject.has("isbn")) {
