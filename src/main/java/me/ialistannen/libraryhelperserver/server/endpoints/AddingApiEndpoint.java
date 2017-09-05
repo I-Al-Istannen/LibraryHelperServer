@@ -68,7 +68,7 @@ public class AddingApiEndpoint implements HttpHandler {
     Optional<Book> bookOptional = isbnLookupProvider.lookup(isbn);
 
     if (!bookOptional.isPresent()) {
-      Exchange.body().sendJson(exchange, MapBuilder.of("message", "Isbn lookup failed.").build());
+      HttpStatusSender.internalServerError(exchange, "Isbn lookup failed.");
       return;
     }
 

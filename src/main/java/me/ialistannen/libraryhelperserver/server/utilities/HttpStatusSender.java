@@ -23,6 +23,10 @@ public class HttpStatusSender {
 
   public static void internalServerError(HttpServerExchange exchange) {
     String message = "An internal server error occurred while processing your request :/";
+    internalServerError(exchange, message);
+  }
+
+  public static void internalServerError(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
 
     exchange.setStatusCode(httpStatusContainer.statusCode);
