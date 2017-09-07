@@ -142,7 +142,7 @@
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>LibaryHelperCommon</artifactId>
-      <version>8a45cb9105</version>
+      <version>3184f24ad0</version>
     </dependency>
 
     <!--GSON-->
