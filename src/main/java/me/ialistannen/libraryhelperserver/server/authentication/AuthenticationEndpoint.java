@@ -40,7 +40,7 @@ public class AuthenticationEndpoint implements HttpHandler {
 
     if (account == null || account.getProfile() == null) {
       HttpStatusSender.forbidden(exchange, "No profile found!");
-      LOGGER.debug(
+      LOGGER.info(
           "Denied request for {} as the account ({}) or profile ({}) was null.",
           exchange.getSourceAddress(), account == null,
           account == null ? "unknown" : account.getProfile() == null
@@ -78,6 +78,7 @@ public class AuthenticationEndpoint implements HttpHandler {
     }
 
     Account authenticatedAccount = securityContext.getAuthenticatedAccount();
+    System.out.println(authenticatedAccount == null);
     if (authenticatedAccount instanceof Pac4jAccount) {
       return (Pac4jAccount) authenticatedAccount;
     }
