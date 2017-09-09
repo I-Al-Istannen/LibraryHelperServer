@@ -1,10 +1,10 @@
-package me.ialistannen.libraryhelperserver.db.elastic;
+package me.ialistannen.libraryhelperserver.db.creation.elastic;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseCreationException;
+import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseCreationException;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

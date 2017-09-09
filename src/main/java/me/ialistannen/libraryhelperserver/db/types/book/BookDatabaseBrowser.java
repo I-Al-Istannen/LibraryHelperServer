@@ -1,8 +1,8 @@
-package me.ialistannen.libraryhelperserver.db;
+package me.ialistannen.libraryhelperserver.db.types.book;
 
 import java.util.List;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.elastic.queries.Query;
+import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.Query;
 
 /**
  * The interface to allow you browsing the books.

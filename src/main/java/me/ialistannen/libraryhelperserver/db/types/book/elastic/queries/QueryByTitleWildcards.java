@@ -1,4 +1,4 @@
-package me.ialistannen.libraryhelperserver.db.elastic.queries;
+package me.ialistannen.libraryhelperserver.db.types.book.elastic.queries;
 
 import java.util.List;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;

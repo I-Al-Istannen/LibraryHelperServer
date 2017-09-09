@@ -1,10 +1,10 @@
-package me.ialistannen.libraryhelperserver.db.elastic.queries;
+package me.ialistannen.libraryhelperserver.db.types.book.elastic.queries;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
+import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator.StringConstant;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;

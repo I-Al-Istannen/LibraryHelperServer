@@ -1,11 +1,11 @@
-package me.ialistannen.libraryhelperserver.db;
+package me.ialistannen.libraryhelperserver.db.types.book;
 
 import java.util.Collection;
 import java.util.Collections;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
+import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
 
 /**
  * The interface to allow you mutating the database.

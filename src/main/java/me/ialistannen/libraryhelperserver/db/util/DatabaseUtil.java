@@ -8,7 +8,7 @@ import java.io.InputStreamReader;
 import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
+import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
 import org.elasticsearch.common.xcontent.StatusToXContentObject;
 import org.elasticsearch.rest.RestStatus;
 import org.elasticsearch.search.SearchHit;

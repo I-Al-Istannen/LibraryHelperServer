@@ -158,14 +158,16 @@
       <version>1.4.18.Final</version>
     </dependency>
 
-    <!--JWT-->
-    <!--<dependency>-->
-    <!--<groupId>io.jsonwebtoken</groupId>-->
-    <!--<artifactId>jjwt</artifactId>-->
-    <!--<version>0.7.0</version>-->
-    <!--</dependency>-->
+    <!-- BCRYPT
+    https://mvnrepository.com/artifact/org.mindrot/jbcrypt -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
+    </dependency>
 
-    <!--PAC $J-->
+
+    <!--PAC 4J-->
     <dependency>
       <groupId>org.pac4j</groupId>
       <artifactId>undertow-pac4j</artifactId>

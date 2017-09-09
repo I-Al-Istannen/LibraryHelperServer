@@ -1,13 +1,13 @@
-package me.ialistannen.libraryhelperserver.db.elastic;
+package me.ialistannen.libraryhelperserver.db.types.book.elastic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.BookDatabaseBrowser;
-import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
-import me.ialistannen.libraryhelperserver.db.elastic.queries.Query;
+import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator.StringConstant;
+import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
+import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.Query;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;

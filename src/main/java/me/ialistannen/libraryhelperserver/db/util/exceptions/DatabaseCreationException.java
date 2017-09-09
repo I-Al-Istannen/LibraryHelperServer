@@ -1,4 +1,4 @@
-package me.ialistannen.libraryhelperserver.db.exceptions;
+package me.ialistannen.libraryhelperserver.db.util.exceptions;
 
 /**
  * Thrown when an error occurred creating the database.

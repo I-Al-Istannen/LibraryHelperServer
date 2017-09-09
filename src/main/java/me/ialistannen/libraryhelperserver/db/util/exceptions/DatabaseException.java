@@ -1,4 +1,4 @@
-package me.ialistannen.libraryhelperserver.db.exceptions;
+package me.ialistannen.libraryhelperserver.db.util.exceptions;
 
 /**
  * An exception that indicates an error while doing a database operation.

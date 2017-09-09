@@ -1,13 +1,14 @@
-package me.ialistannen.libraryhelperserver.db.elastic;
+package me.ialistannen.libraryhelperserver.db.types.book.elastic;
 
 import java.util.Collection;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.BookDatabaseMutator;
-import me.ialistannen.libraryhelperserver.db.elastic.ElasticDatabaseCreator.StringConstant;
-import me.ialistannen.libraryhelperserver.db.exceptions.DatabaseException;
+import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator;
+import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator.StringConstant;
+import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
+import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
 import org.elasticsearch.action.DocWriteResponse.Result;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.delete.DeleteResponse;
