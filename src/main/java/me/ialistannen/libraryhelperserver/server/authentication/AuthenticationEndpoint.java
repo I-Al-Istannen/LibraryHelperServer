@@ -30,8 +30,10 @@ public class AuthenticationEndpoint implements HttpHandler {
   private JwtGenerator<CommonProfile> generator;
   private TemporalAmount expirationTime = Duration.ofMinutes(5);
 
-  public AuthenticationEndpoint(String secret) {
-    generator = new JwtGenerator<>(new SecretSignatureConfiguration(secret));
+  public AuthenticationEndpoint(String signingSecret) {
+    generator = new JwtGenerator<>(
+        new SecretSignatureConfiguration(signingSecret)
+    );
   }
 
   @Override
@@ -78,7 +80,6 @@ public class AuthenticationEndpoint implements HttpHandler {
     }
 
     Account authenticatedAccount = securityContext.getAuthenticatedAccount();
-    System.out.println(authenticatedAccount == null);
     if (authenticatedAccount instanceof Pac4jAccount) {
       return (Pac4jAccount) authenticatedAccount;
     }

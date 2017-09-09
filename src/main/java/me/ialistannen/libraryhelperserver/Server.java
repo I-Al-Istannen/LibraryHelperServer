@@ -27,6 +27,7 @@ import me.ialistannen.libraryhelperserver.server.endpoints.LendingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.SearchApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.CustomHandlers;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.HandlerChain;
+import me.ialistannen.libraryhelperserver.util.Configs;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
@@ -69,7 +70,7 @@ public class Server {
     IsbnConverter isbnConverter = new IsbnConverter();
 
     LendingApiEndpoint lendingApiEndpoint = new LendingApiEndpoint(isbnConverter, mutator, browser);
-    String secret = SecurityConfigCreator.getSecret();
+    String secret = Configs.getCustom().getString("authentication.signing_secret");
     Config config = SecurityConfigCreator.create();
 
     return AuthenticatedRoutingHandler.builder(config, new JsonSecurityLogic())
