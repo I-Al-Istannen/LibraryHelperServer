@@ -19,6 +19,7 @@ import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.elastic.ElasticBookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticatedRoutingHandler;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticationEndpoint;
+import me.ialistannen.libraryhelperserver.server.authentication.JsonSecurityLogic;
 import me.ialistannen.libraryhelperserver.server.authentication.SecurityConfigCreator;
 import me.ialistannen.libraryhelperserver.server.endpoints.AddingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.DeletingApiEndpoint;
@@ -71,7 +72,7 @@ public class Server {
     String secret = SecurityConfigCreator.getSecret();
     Config config = SecurityConfigCreator.create();
 
-    return AuthenticatedRoutingHandler.builder(config)
+    return AuthenticatedRoutingHandler.builder(config, new JsonSecurityLogic())
         .authenticated(
             "get", "/test", exchange -> exchange.getResponseSender().send("Magic?")
         )

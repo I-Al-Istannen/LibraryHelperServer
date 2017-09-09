@@ -3,6 +3,8 @@ package me.ialistannen.libraryhelperserver.server.authentication;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.RoutingHandler;
 import org.pac4j.core.config.Config;
+import org.pac4j.core.engine.SecurityLogic;
+import org.pac4j.undertow.context.UndertowWebContext;
 import org.pac4j.undertow.handler.SecurityHandler;
 
 /**
@@ -15,9 +17,12 @@ public class AuthenticatedRoutingHandler {
 
   private final Config config;
   private final RoutingHandler routingHandler;
+  private final SecurityLogic<Object, UndertowWebContext> securityLogic;
 
-  private AuthenticatedRoutingHandler(Config config) {
+  private AuthenticatedRoutingHandler(Config config,
+      SecurityLogic<Object, UndertowWebContext> securityLogic) {
     this.config = config;
+    this.securityLogic = securityLogic;
     this.routingHandler = new RoutingHandler();
   }
 
@@ -35,8 +40,17 @@ public class AuthenticatedRoutingHandler {
   private AuthenticatedRoutingHandler addHandler(String method, String template, String clientName,
       HttpHandler handler) {
 
-    routingHandler.add(method, template, SecurityHandler.build(handler, config, clientName));
+    routingHandler.add(method, template, buildHandler(clientName, handler));
     return this;
+  }
+
+  private HttpHandler buildHandler(String clientName, HttpHandler handler) {
+    return SecurityHandler
+        .build(
+            handler, config, clientName,
+            null, null, null,
+            securityLogic
+        );
   }
 
   public RoutingHandler build() {
@@ -44,6 +58,11 @@ public class AuthenticatedRoutingHandler {
   }
 
   public static AuthenticatedRoutingHandler builder(Config config) {
-    return new AuthenticatedRoutingHandler(config);
+    return builder(config, null);
+  }
+
+  public static AuthenticatedRoutingHandler builder(Config config,
+      SecurityLogic<Object, UndertowWebContext> securityLogic) {
+    return new AuthenticatedRoutingHandler(config, securityLogic);
   }
 }
