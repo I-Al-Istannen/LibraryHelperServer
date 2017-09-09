@@ -33,6 +33,13 @@ public class HttpStatusSender {
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }
 
+  public static void forbidden(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(403, message);
+
+    exchange.setStatusCode(httpStatusContainer.statusCode);
+    Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
+  }
+
   private static class HttpStatusContainer {
 
     int statusCode;
