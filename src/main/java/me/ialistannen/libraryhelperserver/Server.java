@@ -26,6 +26,8 @@ import me.ialistannen.libraryhelperserver.server.authentication.AuthenticatedRou
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticationEndpoint;
 import me.ialistannen.libraryhelperserver.server.authentication.JsonSecurityLogic;
 import me.ialistannen.libraryhelperserver.server.authentication.SecurityConfigCreator;
+import me.ialistannen.libraryhelperserver.server.authentication.UserCreationEndpoint;
+import me.ialistannen.libraryhelperserver.server.authentication.UserDeletionEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.AddingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.DeletingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.LendingApiEndpoint;
@@ -90,6 +92,14 @@ public class Server {
         .unauthenticated(
             "post", "/login", new AuthenticationEndpoint(
                 secret, userDatabaseBrowser, userDatabaseMutator
+            )
+        )
+        .authenticated(
+            "delete", "/delete-user", new UserDeletionEndpoint(userDatabaseMutator)
+        )
+        .authenticated(
+            "post", "/add-user", new UserCreationEndpoint(
+                userDatabaseMutator, userDatabaseBrowser
             )
         )
         .authenticated("get", "/search", new SearchApiEndpoint(client))

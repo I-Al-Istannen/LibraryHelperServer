@@ -1,7 +1,9 @@
 package me.ialistannen.libraryhelperserver.db.types.users.elastic;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import me.ialistannen.libraryhelperserver.model.User;
 import me.ialistannen.libraryhelperserver.model.hashing.HashingAlgorithm.Hash;
 import me.ialistannen.libraryhelperserver.model.hashing.bcrypt.BcryptHash;
@@ -15,11 +17,14 @@ class IntermediaryUser {
   private transient Hash hash;
   private String hashAsString;
   private String username;
+  private Set<String> roles;
   private Map<String, String> claims;
 
-  private IntermediaryUser(String hashAsString, String username, Map<String, String> claims) {
+  private IntermediaryUser(String hashAsString, String username, Set<String> roles,
+      Map<String, String> claims) {
     this.hashAsString = hashAsString;
     this.username = username;
+    this.roles = new HashSet<>(roles);
     this.claims = claims;
   }
 
@@ -31,6 +36,10 @@ class IntermediaryUser {
     return username;
   }
 
+  private Set<String> getRoles() {
+    return roles == null ? roles = new HashSet<>() : roles;
+  }
+
   private Map<String, String> getClaims() {
     return claims;
   }
@@ -39,11 +48,13 @@ class IntermediaryUser {
     if (hash == null) {
       hash = new BcryptHash(BcryptHasher.getInstance(), getHashAsString());
     }
-    return new User(hash, getUsername(), getClaims());
+    return new User(hash, getUsername(), getRoles(), getClaims());
   }
 
   static IntermediaryUser fromUser(User user) {
-    return new IntermediaryUser(user.getHash().getAsString(), user.getUsername(), user.getClaims());
+    return new IntermediaryUser(
+        user.getHash().getAsString(), user.getUsername(), user.getRoles(), user.getClaims()
+    );
   }
 
   @Override

@@ -17,8 +17,7 @@ public class HttpStatusSender {
   public static void badRequest(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(400, message);
 
-    exchange.setStatusCode(httpStatusContainer.statusCode);
-    Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
+    sendResponse(exchange, httpStatusContainer);
   }
 
   public static void internalServerError(HttpServerExchange exchange) {
@@ -29,20 +28,29 @@ public class HttpStatusSender {
   public static void internalServerError(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
 
-    exchange.setStatusCode(httpStatusContainer.statusCode);
-    Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
+    sendResponse(exchange, httpStatusContainer);
   }
 
   public static void forbidden(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(403, message);
 
-    exchange.setStatusCode(httpStatusContainer.statusCode);
-    Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
+    sendResponse(exchange, httpStatusContainer);
   }
 
   public static void unauthorized(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(401, message);
 
+    sendResponse(exchange, httpStatusContainer);
+  }
+
+  public static void conflict(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(409, message);
+
+    sendResponse(exchange, httpStatusContainer);
+  }
+
+  private static void sendResponse(HttpServerExchange exchange,
+      HttpStatusContainer httpStatusContainer) {
     exchange.setStatusCode(httpStatusContainer.statusCode);
     Exchange.body().sendJson(exchange, SERIALIZER.toJson(httpStatusContainer));
   }

@@ -1,7 +1,9 @@
 package me.ialistannen.libraryhelperserver.model;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Function;
 import me.ialistannen.libraryhelperserver.model.hashing.HashingAlgorithm.Hash;
 
@@ -14,14 +16,18 @@ public class User {
   private String username;
 
   private Map<String, String> claims;
+  private Set<String> roles;
 
   /**
    * @param hash The {@link Hash} of the user
+   * @param username The username of the user
+   * @param roles The roles the user has
    * @param claims The additional claims for the user
    */
-  public User(Hash hash, String username, Map<String, String> claims) {
+  public User(Hash hash, String username, Set<String> roles, Map<String, String> claims) {
     this.hash = hash;
     this.username = username;
+    this.roles = new HashSet<>(roles);
     this.claims = claims;
   }
 
@@ -52,6 +58,13 @@ public class User {
    */
   public Map<String, String> getClaims() {
     return claims;
+  }
+
+  /**
+   * @return The roles for the user
+   */
+  public Set<String> getRoles() {
+    return roles;
   }
 
   /**

@@ -38,8 +38,8 @@ public class ElasticUserDatabaseMutator implements UserDatabaseMutator {
   }
 
   @Override
-  public void deleteUser(User user) {
-    DeleteResponse deleteResponse = client.prepareDelete(INDEX_NAME, TYPE_NAME, user.getUsername())
+  public void deleteUser(String userName) {
+    DeleteResponse deleteResponse = client.prepareDelete(INDEX_NAME, TYPE_NAME, userName)
         .get();
 
     if (deleteResponse.getResult() == Result.DELETED
@@ -48,7 +48,7 @@ public class ElasticUserDatabaseMutator implements UserDatabaseMutator {
     }
     throw new DatabaseException(String.format(
         "Could not delete user '%s', result '%s'.",
-        user.getUsername(), deleteResponse.getResult()
+        userName, deleteResponse.getResult()
     ));
   }
 }

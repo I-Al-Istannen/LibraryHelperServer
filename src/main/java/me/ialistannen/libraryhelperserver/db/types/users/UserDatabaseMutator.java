@@ -17,7 +17,7 @@ public interface UserDatabaseMutator {
   /**
    * Deletes a {@link User} from the database.
    *
-   * @param user The {@link User} to delete
+   * @param userName The name of the user to delete
    */
-  void deleteUser(User user);
+  void deleteUser(String userName);
 }

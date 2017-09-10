@@ -2,8 +2,11 @@ package me.ialistannen.libraryhelperserver.db.types.users.elastic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import me.ialistannen.libraryhelperserver.model.User;
 import me.ialistannen.libraryhelperserver.model.hashing.bcrypt.BcryptHash;
@@ -24,7 +27,8 @@ class IntermediaryUserTest {
     Map<String, String> claims = new HashMap<>();
     claims.put("test", "value");
     claims.put("test key 2", "value 2");
-    User user = new User(hash, username, claims);
+    Set<String> roles = new HashSet<>(Arrays.asList("Admin", "That guy"));
+    User user = new User(hash, username, roles, claims);
 
     IntermediaryUser intermediaryUser = IntermediaryUser.fromUser(user);
 
@@ -40,7 +44,8 @@ class IntermediaryUserTest {
     Map<String, String> claims = new HashMap<>();
     claims.put("test", "value");
     claims.put("test key 2", "value 2");
-    User user = new User(hash, username, claims);
+    Set<String> roles = new HashSet<>(Arrays.asList("Admin", "That guy"));
+    User user = new User(hash, username, roles, claims);
 
     IntermediaryUser intermediaryUser = IntermediaryUser.fromUser(user);
 

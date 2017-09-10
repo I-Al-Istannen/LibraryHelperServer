@@ -74,7 +74,6 @@ public class ElasticUserDatabaseBrowser implements UserDatabaseBrowser {
   }
 
   private User searchHitToUser(SearchHit searchHit) {
-    System.out.println(searchHit.getSourceAsString());
     return DatabaseUtil.getGson()
         .fromJson(searchHit.getSourceAsString(), IntermediaryUser.class)
         .toUser();

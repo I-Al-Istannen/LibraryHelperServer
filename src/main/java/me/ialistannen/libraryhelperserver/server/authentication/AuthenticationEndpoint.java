@@ -1,7 +1,5 @@
 package me.ialistannen.libraryhelperserver.server.authentication;
 
-import io.undertow.security.api.SecurityContext;
-import io.undertow.security.idm.Account;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import java.time.Duration;
@@ -47,7 +45,7 @@ public class AuthenticationEndpoint implements HttpHandler {
 
   @Override
   public void handleRequest(HttpServerExchange exchange) throws Exception {
-    Pac4jAccount account = getAccount(exchange);
+    Pac4jAccount account = AuthenticationUtil.getAccount(exchange);
 
     if (account == null || account.getProfile() == null) {
       HttpStatusSender.forbidden(exchange, "No profile found!");
@@ -98,6 +96,7 @@ public class AuthenticationEndpoint implements HttpHandler {
     for (Entry<String, String> entry : user.getClaims().entrySet()) {
       profile.addAttribute(entry.getKey(), entry.getValue());
     }
+    profile.addRoles(user.getRoles());
 
     String jwt = generator.generate(profile);
 
@@ -105,24 +104,11 @@ public class AuthenticationEndpoint implements HttpHandler {
   }
 
   private boolean updateHash(Hash newHash, User user) {
-    User newUser = new User(newHash, user.getUsername(), user.getClaims());
+    User newUser = new User(newHash, user.getUsername(), user.getRoles(), user.getClaims());
     userDatabaseMutator.storeOrUpdateUser(newUser);
     return true;
   }
 
-  private Pac4jAccount getAccount(HttpServerExchange exchange) {
-    SecurityContext securityContext = exchange.getSecurityContext();
-    if (securityContext == null) {
-      return null;
-    }
-
-    Account authenticatedAccount = securityContext.getAuthenticatedAccount();
-    if (authenticatedAccount instanceof Pac4jAccount) {
-      return (Pac4jAccount) authenticatedAccount;
-    }
-
-    return null;
-  }
 
   private static class RequestPojo {
 
