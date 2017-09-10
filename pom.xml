@@ -81,7 +81,7 @@
       <!--SUREFIRE-->
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.20</version>
+        <version>2.19.1</version>
         <executions>
           <execution>
             <id>run-tests</id>
@@ -89,10 +89,11 @@
           </execution>
         </executions>
         <dependencies>
+          <!-- https://mvnrepository.com/artifact/org.junit.platform/junit-platform-surefire-provider -->
           <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-surefire-provider</artifactId>
-            <version>1.0.0-M4</version>
+            <version>1.0.0-M6</version>
           </dependency>
         </dependencies>
       </plugin>
@@ -125,8 +126,8 @@
     <!--JUNIT-->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <version>5.0.0-M4</version>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.0.0-M6</version>
       <scope>test</scope>
     </dependency>
 

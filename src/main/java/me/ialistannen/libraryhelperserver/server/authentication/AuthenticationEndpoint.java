@@ -8,7 +8,13 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
 import java.util.Date;
+import java.util.Map.Entry;
 import java.util.Optional;
+import me.ialistannen.libraryhelperserver.db.types.users.UserDatabaseBrowser;
+import me.ialistannen.libraryhelperserver.db.types.users.UserDatabaseMutator;
+import me.ialistannen.libraryhelperserver.db.util.UsernameVerifier;
+import me.ialistannen.libraryhelperserver.model.User;
+import me.ialistannen.libraryhelperserver.model.hashing.HashingAlgorithm.Hash;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
@@ -29,11 +35,14 @@ public class AuthenticationEndpoint implements HttpHandler {
 
   private JwtGenerator<CommonProfile> generator;
   private TemporalAmount expirationTime = Duration.ofMinutes(5);
+  private UserDatabaseBrowser userDatabaseBrowser;
+  private UserDatabaseMutator userDatabaseMutator;
 
-  public AuthenticationEndpoint(String signingSecret) {
-    generator = new JwtGenerator<>(
-        new SecretSignatureConfiguration(signingSecret)
-    );
+  public AuthenticationEndpoint(String signingSecret, UserDatabaseBrowser userDatabaseBrowser,
+      UserDatabaseMutator userDatabaseMutator) {
+    this.generator = new JwtGenerator<>(new SecretSignatureConfiguration(signingSecret));
+    this.userDatabaseBrowser = userDatabaseBrowser;
+    this.userDatabaseMutator = userDatabaseMutator;
   }
 
   @Override
@@ -50,9 +59,9 @@ public class AuthenticationEndpoint implements HttpHandler {
       return;
     }
 
-    Optional<RequestPojo> requestPojo = Exchange.body().readObject(exchange, RequestPojo.class);
+    Optional<RequestPojo> requestOptional = Exchange.body().readObject(exchange, RequestPojo.class);
 
-    if (!requestPojo.isPresent()) {
+    if (!requestOptional.isPresent()) {
       HttpStatusSender.badRequest(
           exchange,
           "JSON is malformed! Missing 'username' or 'password' or they are not strings."
@@ -60,17 +69,45 @@ public class AuthenticationEndpoint implements HttpHandler {
       return;
     }
 
-    RequestPojo request = requestPojo.get();
+    RequestPojo request = requestOptional.get();
+
+    if (UsernameVerifier.isValidUsername(request.username)) {
+      HttpStatusSender.badRequest(exchange, "Invalid username. Must be alphanumeric.");
+      return;
+    }
+
+    Optional<User> userOptional = userDatabaseBrowser.getUser(request.username);
+
+    if (!userOptional.isPresent()) {
+      HttpStatusSender.unauthorized(exchange, "Username not known or password incorrect.");
+      return;
+    }
+
+    User user = userOptional.get();
+
+    if (!user.verifyAndUpdate(request.password, newHash -> updateHash(newHash, user))) {
+      HttpStatusSender.unauthorized(exchange, "Username not known or password incorrect.");
+      return;
+    }
 
     LOGGER.info("Created JWT for user '{}'", request.username);
 
     CommonProfile profile = account.getProfile();
     profile.addAttribute(JwtClaims.EXPIRATION_TIME, Date.from(Instant.now().plus(expirationTime)));
     profile.setId(request.username);
+    for (Entry<String, String> entry : user.getClaims().entrySet()) {
+      profile.addAttribute(entry.getKey(), entry.getValue());
+    }
 
     String jwt = generator.generate(profile);
 
     Exchange.body().sendJson(exchange, MapBuilder.of("token", jwt).build());
+  }
+
+  private boolean updateHash(Hash newHash, User user) {
+    User newUser = new User(newHash, user.getUsername(), user.getClaims());
+    userDatabaseMutator.storeOrUpdateUser(newUser);
+    return true;
   }
 
   private Pac4jAccount getAccount(HttpServerExchange exchange) {

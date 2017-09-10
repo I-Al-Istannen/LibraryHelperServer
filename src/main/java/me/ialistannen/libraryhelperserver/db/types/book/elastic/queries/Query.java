@@ -33,8 +33,8 @@ public abstract class Query<T> {
    * @return The returned hits
    */
   protected SearchHits search(TransportClient client, QueryBuilder query) {
-    SearchResponse searchResponse = client.prepareSearch(StringConstant.INDEX_NAME.getValue())
-        .setTypes(StringConstant.TYPE_NAME.getValue())
+    SearchResponse searchResponse = client.prepareSearch(StringConstant.BOOK_INDEX_NAME.getValue())
+        .setTypes(StringConstant.BOOK_TYPE_NAME.getValue())
         .setQuery(query)
         .get();
 

@@ -29,8 +29,8 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
 
   @Override
   public List<LoanableBook> getAllBooksLimited() {
-    SearchResponse searchResponse = client.prepareSearch(StringConstant.INDEX_NAME.getValue())
-        .setTypes(StringConstant.TYPE_NAME.getValue())
+    SearchResponse searchResponse = client.prepareSearch(StringConstant.BOOK_INDEX_NAME.getValue())
+        .setTypes(StringConstant.BOOK_TYPE_NAME.getValue())
         .setQuery(QueryBuilders.matchAllQuery())
         .setSize(100)
         .get();
@@ -47,8 +47,8 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
 
   @Override
   public List<LoanableBook> getAllBooksFully() {
-    SearchResponse searchResponse = client.prepareSearch(StringConstant.INDEX_NAME.getValue())
-        .setTypes(StringConstant.TYPE_NAME.getValue())
+    SearchResponse searchResponse = client.prepareSearch(StringConstant.BOOK_INDEX_NAME.getValue())
+        .setTypes(StringConstant.BOOK_TYPE_NAME.getValue())
         .setQuery(QueryBuilders.matchAllQuery())
         .setScroll(TimeValue.timeValueMinutes(1))
         .setSize(100)

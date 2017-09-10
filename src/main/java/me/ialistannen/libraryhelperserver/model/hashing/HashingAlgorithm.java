@@ -34,11 +34,10 @@ public interface HashingAlgorithm<T extends Hash> {
    */
   T hash(String password);
 
-
   /**
    * A hash. What it does is defined by subclasses.
    */
-  class Hash {
+  abstract class Hash {
 
     private HashingAlgorithm hashingAlgorithm;
 
@@ -54,5 +53,10 @@ public interface HashingAlgorithm<T extends Hash> {
       HashingAlgorithm<T> t = this.hashingAlgorithm;
       return t;
     }
+
+    /**
+     * @return The string version of this hash
+     */
+    public abstract String getAsString();
   }
 }

@@ -13,10 +13,15 @@ import java.net.UnknownHostException;
 import java.util.Locale;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
 import me.ialistannen.isbnlookuplib.lookup.providers.amazon.AmazonIsbnLookupProvider;
+import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.ElasticBookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.ElasticBookDatabaseMutator;
+import me.ialistannen.libraryhelperserver.db.types.users.UserDatabaseBrowser;
+import me.ialistannen.libraryhelperserver.db.types.users.UserDatabaseMutator;
+import me.ialistannen.libraryhelperserver.db.types.users.elastic.ElasticUserDatabaseBrowser;
+import me.ialistannen.libraryhelperserver.db.types.users.elastic.ElasticUserDatabaseMutator;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticatedRoutingHandler;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticationEndpoint;
 import me.ialistannen.libraryhelperserver.server.authentication.JsonSecurityLogic;
@@ -65,8 +70,13 @@ public class Server {
   private static RoutingHandler getRoutingHandler() throws UnknownHostException {
     TransportClient client = getClient();
 
+    ElasticDatabaseCreator databaseCreator = new ElasticDatabaseCreator();
+    databaseCreator.create(client.admin().indices());
+
     BookDatabaseMutator mutator = new ElasticBookDatabaseMutator(client);
     BookDatabaseBrowser browser = new ElasticBookDatabaseBrowser(client);
+    UserDatabaseBrowser userDatabaseBrowser = new ElasticUserDatabaseBrowser(client);
+    UserDatabaseMutator userDatabaseMutator = new ElasticUserDatabaseMutator(client);
     IsbnConverter isbnConverter = new IsbnConverter();
 
     LendingApiEndpoint lendingApiEndpoint = new LendingApiEndpoint(isbnConverter, mutator, browser);
@@ -77,7 +87,11 @@ public class Server {
         .authenticated(
             "get", "/test", exchange -> exchange.getResponseSender().send("Magic?")
         )
-        .unauthenticated("post", "/login", new AuthenticationEndpoint(secret))
+        .unauthenticated(
+            "post", "/login", new AuthenticationEndpoint(
+                secret, userDatabaseBrowser, userDatabaseMutator
+            )
+        )
         .authenticated("get", "/search", new SearchApiEndpoint(client))
         .authenticated(
             "put", "/add", new AddingApiEndpoint(

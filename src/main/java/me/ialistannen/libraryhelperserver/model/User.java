@@ -1,6 +1,7 @@
 package me.ialistannen.libraryhelperserver.model;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import me.ialistannen.libraryhelperserver.model.hashing.HashingAlgorithm.Hash;
 
@@ -10,6 +11,7 @@ import me.ialistannen.libraryhelperserver.model.hashing.HashingAlgorithm.Hash;
 public class User {
 
   private Hash hash;
+  private String username;
 
   private Map<String, String> claims;
 
@@ -17,8 +19,9 @@ public class User {
    * @param hash The {@link Hash} of the user
    * @param claims The additional claims for the user
    */
-  public User(Hash hash, Map<String, String> claims) {
+  public User(Hash hash, String username, Map<String, String> claims) {
     this.hash = hash;
+    this.username = username;
     this.claims = claims;
   }
 
@@ -49,5 +52,46 @@ public class User {
    */
   public Map<String, String> getClaims() {
     return claims;
+  }
+
+  /**
+   * @return The username
+   */
+  public String getUsername() {
+    return username;
+  }
+
+  /**
+   * @return The {@link Hash} for the user
+   */
+  public Hash getHash() {
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    User user = (User) o;
+    return Objects.equals(getHash(), user.getHash()) &&
+        Objects.equals(getUsername(), user.getUsername());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getHash(), getUsername());
+  }
+
+  @Override
+  public String toString() {
+    return "User{"
+        + "hash=" + hash
+        + ", username='" + username + '\''
+        + ", claims=" + claims
+        + '}';
   }
 }

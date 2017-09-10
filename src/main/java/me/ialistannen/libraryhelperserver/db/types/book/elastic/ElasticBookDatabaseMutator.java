@@ -34,8 +34,8 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
 
       String json = DatabaseUtil.toJson(book);
       IndexResponse indexResponse = client.prepareIndex(
-          StringConstant.INDEX_NAME.getValue(),
-          StringConstant.TYPE_NAME.getValue(),
+          StringConstant.BOOK_INDEX_NAME.getValue(),
+          StringConstant.BOOK_TYPE_NAME.getValue(),
           isbn.getDigitsAsString()
       )
           .setSource(json, XContentType.JSON)
@@ -64,8 +64,8 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
   @Override
   public boolean deleteBookByIsbn(Isbn isbn) {
     DeleteResponse deleteResponse = client.prepareDelete(
-        StringConstant.INDEX_NAME.getValue(),
-        StringConstant.TYPE_NAME.getValue(),
+        StringConstant.BOOK_INDEX_NAME.getValue(),
+        StringConstant.BOOK_TYPE_NAME.getValue(),
         isbn.getDigitsAsString()
     ).get();
 
@@ -82,7 +82,7 @@ public class ElasticBookDatabaseMutator implements BookDatabaseMutator {
   @Override
   public void deleteAll() {
     DeleteIndexResponse deleteResponse = client.admin().indices()
-        .prepareDelete(StringConstant.INDEX_NAME.getValue())
+        .prepareDelete(StringConstant.BOOK_INDEX_NAME.getValue())
         .get();
 
     if (!deleteResponse.isAcknowledged()) {

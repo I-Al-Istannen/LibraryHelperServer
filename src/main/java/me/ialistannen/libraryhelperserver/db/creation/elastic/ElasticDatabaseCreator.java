@@ -28,13 +28,16 @@ public class ElasticDatabaseCreator {
   public void create(IndicesAdminClient client) {
     try {
 
-      if (!doesIndexExist(client)) {
-        createIndex(client);
-        System.out.println("Created");
-      } else {
-        blowUpIndex(client);
-        System.out.println("*Boom*");
-        System.exit(0);
+      String bookIndexName = StringConstant.BOOK_INDEX_NAME.getValue();
+      if (!doesIndexExist(client, bookIndexName)) {
+        createIndex(client, bookIndexName, "CreateBookIndex.json");
+        LOGGER.info("Created book index");
+      }
+
+      String userIndexName = StringConstant.USER_INDEX_NAME.getValue();
+      if (!doesIndexExist(client, userIndexName)) {
+        createIndex(client, userIndexName, "CreateUserIndex.json");
+        LOGGER.info("Created user index");
       }
 
     } catch (Exception e) {
@@ -42,15 +45,20 @@ public class ElasticDatabaseCreator {
     }
   }
 
-  private boolean doesIndexExist(IndicesAdminClient client) {
-    return client.prepareExists(StringConstant.INDEX_NAME.getValue()).get().isExists();
+  private boolean doesIndexExist(IndicesAdminClient client, String indexName) {
+    return client.prepareExists(indexName).get().isExists();
   }
 
-  private void createIndex(IndicesAdminClient client) {
-    String data = loadStringData("/resources/db/Create.json");
+  /**
+   * @param client The client to use
+   * @param name The name of the index
+   * @param jsonPath The path to the json settings file. Relative to "/resources/db/".
+   */
+  private void createIndex(IndicesAdminClient client, String name, String jsonPath) {
+    String data = loadStringData("/resources/db/" + jsonPath);
 
     CreateIndexResponse indexResponse = client
-        .prepareCreate(StringConstant.INDEX_NAME.getValue())
+        .prepareCreate(name)
         .setSource(data, XContentType.JSON)
         .get();
 
@@ -79,18 +87,14 @@ public class ElasticDatabaseCreator {
     }
   }
 
-  private void blowUpIndex(IndicesAdminClient client) {
-    if (!client.prepareDelete(StringConstant.INDEX_NAME.getValue()).get().isAcknowledged()) {
-      LOGGER.warn("Not acknowledged delete");
-    }
-  }
-
   /**
    * Static constants for the database
    */
   public enum StringConstant {
-    INDEX_NAME("books"),
-    TYPE_NAME("book");
+    BOOK_INDEX_NAME("books"),
+    BOOK_TYPE_NAME("book"),
+    USER_INDEX_NAME("users"),
+    USER_TYPE_NAME("user");
 
     private String value;
 
