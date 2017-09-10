@@ -24,6 +24,7 @@ import me.ialistannen.libraryhelperserver.db.types.users.elastic.ElasticUserData
 import me.ialistannen.libraryhelperserver.db.types.users.elastic.ElasticUserDatabaseMutator;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticatedRoutingHandler;
 import me.ialistannen.libraryhelperserver.server.authentication.AuthenticationEndpoint;
+import me.ialistannen.libraryhelperserver.server.authentication.AuthenticationUtil;
 import me.ialistannen.libraryhelperserver.server.authentication.JsonSecurityLogic;
 import me.ialistannen.libraryhelperserver.server.authentication.SecurityConfigCreator;
 import me.ialistannen.libraryhelperserver.server.authentication.UserCreationEndpoint;
@@ -59,8 +60,14 @@ public class Server {
   }
 
   public static void main(String[] args) throws UnknownHostException {
-    PathHandler pathHandler = new PathHandler(wrapWithBasicHandlers(getRoutingHandler()))
-        .addPrefixPath("/cover", CustomHandlers.resource("covers"));
+    JsonSecurityLogic jsonSecurityLogic = new JsonSecurityLogic();
+    Config config = SecurityConfigCreator.create();
+
+    HttpHandler coverHandler = buildCoverHandler(jsonSecurityLogic, config);
+    PathHandler pathHandler = new PathHandler(wrapWithBasicHandlers(
+        getRoutingHandler(config, jsonSecurityLogic)
+    ))
+        .addPrefixPath("/cover", coverHandler);
 
     Undertow undertow = Undertow.builder()
         .addHttpListener(8080, "0.0.0.0", pathHandler)
@@ -69,7 +76,14 @@ public class Server {
     undertow.start();
   }
 
-  private static RoutingHandler getRoutingHandler() throws UnknownHostException {
+  private static HttpHandler buildCoverHandler(JsonSecurityLogic jsonSecurityLogic, Config config) {
+    return AuthenticationUtil.requireAuthentication(
+        CustomHandlers.resource("covers"), config, jsonSecurityLogic
+    );
+  }
+
+  private static RoutingHandler getRoutingHandler(Config config, JsonSecurityLogic securityLogic)
+      throws UnknownHostException {
     TransportClient client = getClient();
 
     ElasticDatabaseCreator databaseCreator = new ElasticDatabaseCreator();
@@ -83,9 +97,8 @@ public class Server {
 
     LendingApiEndpoint lendingApiEndpoint = new LendingApiEndpoint(isbnConverter, mutator, browser);
     String secret = Configs.getCustom().getString("authentication.signing_secret");
-    Config config = SecurityConfigCreator.create();
 
-    return AuthenticatedRoutingHandler.builder(config, new JsonSecurityLogic())
+    return AuthenticatedRoutingHandler.builder(config, securityLogic)
         .authenticated(
             "get", "/test", exchange -> exchange.getResponseSender().send("Magic?")
         )

@@ -57,10 +57,6 @@ public class AuthenticatedRoutingHandler {
     return routingHandler;
   }
 
-  public static AuthenticatedRoutingHandler builder(Config config) {
-    return builder(config, null);
-  }
-
   public static AuthenticatedRoutingHandler builder(Config config,
       SecurityLogic<Object, UndertowWebContext> securityLogic) {
     return new AuthenticatedRoutingHandler(config, securityLogic);
