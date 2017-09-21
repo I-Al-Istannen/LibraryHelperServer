@@ -6,31 +6,34 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
- * A {@link Query} that searches the title using wildcards.
+ * A query to search by term
  */
-public class QueryByTitleWildcards extends Query<List<LoanableBook>> {
+public class QueryByTerm extends Query<List<LoanableBook>> {
 
   private final String query;
+  private final String field;
 
-  private QueryByTitleWildcards(String query) {
-    this.query = query.toLowerCase();
+  private QueryByTerm(String query, String field) {
+    this.query = query;
+    this.field = field;
   }
 
   @Override
   public List<LoanableBook> makeQuery(TransportClient client) {
     return hitsToBooks(
-        search(client, QueryBuilders.wildcardQuery(
-            "title.raw",
+        search(client, QueryBuilders.termQuery(
+            field,
             query
         ))
     );
   }
 
   /**
-   * @param titleQuery The wildcarded query to use
+   * @param query The term query to use
+   * @param field The field to search in
    * @return A query to search that
    */
-  public static QueryByTitleWildcards forQuery(String titleQuery) {
-    return new QueryByTitleWildcards(titleQuery);
+  public static QueryByTerm forQuery(String query, String field) {
+    return new QueryByTerm(query, field);
   }
 }

@@ -46,6 +46,9 @@
               }
             }
           }
+        },
+        "location": {
+          "type": "keyword"
         }
       }
     }

@@ -13,9 +13,10 @@ import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByAuthorWildcards;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByIsbn;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTitleMatch;
+import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByMatch;
+import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTerm;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTitleRegex;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTitleWildcards;
+import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByWildcards;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
@@ -31,9 +32,12 @@ public class SearchApiEndpoint implements HttpHandler {
 
   public SearchApiEndpoint(TransportClient client) {
     searchTypes.put("title_regex", s -> QueryByTitleRegex.forRegex(s).makeQuery(client));
-    searchTypes.put("title_wildcard", s -> QueryByTitleWildcards.forQuery(s).makeQuery(client));
-    searchTypes.put("title_match", s -> QueryByTitleMatch.forQuery(s).makeQuery(client));
+    searchTypes.put("title_wildcard", s ->
+        QueryByWildcards.forQuery(s, "title.raw").makeQuery(client)
+    );
+    searchTypes.put("title_match", s -> QueryByMatch.forQuery(s, "title").makeQuery(client));
     searchTypes.put("author_wildcard", s -> QueryByAuthorWildcards.forQuery(s).makeQuery(client));
+    searchTypes.put("location", s -> QueryByTerm.forQuery(s, "location").makeQuery(client));
     searchTypes.put("isbn", s -> {
       Optional<LoanableBook> bookOptional = QueryByIsbn.forIsbn(s).makeQuery(client);
 

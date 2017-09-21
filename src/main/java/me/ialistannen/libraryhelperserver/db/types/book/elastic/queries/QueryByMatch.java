@@ -6,21 +6,23 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilders;
 
 /**
- * Queries by
+ * A query that peforms a MATCH query on a given field.
  */
-public class QueryByTitleMatch extends Query<List<LoanableBook>> {
+public class QueryByMatch extends Query<List<LoanableBook>> {
 
   private final String query;
+  private final String field;
 
-  private QueryByTitleMatch(String query) {
+  private QueryByMatch(String query, String field) {
     this.query = query;
+    this.field = field;
   }
 
   @Override
   public List<LoanableBook> makeQuery(TransportClient client) {
     return hitsToBooks(
         search(client, QueryBuilders.matchQuery(
-            "title",
+            field,
             query
         ))
     );
@@ -28,9 +30,10 @@ public class QueryByTitleMatch extends Query<List<LoanableBook>> {
 
   /**
    * @param query The query to execute
-   * @return The {@link QueryByTitleMatch} for the passed query.
+   * @param field The field to search in
+   * @return The {@link QueryByMatch} for the passed query.
    */
-  public static QueryByTitleMatch forQuery(String query) {
-    return new QueryByTitleMatch(query);
+  public static QueryByMatch forQuery(String query, String field) {
+    return new QueryByMatch(query, field);
   }
 }
