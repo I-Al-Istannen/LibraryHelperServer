@@ -20,13 +20,8 @@ public class HttpStatusSender {
     sendResponse(exchange, httpStatusContainer);
   }
 
-  public static void internalServerError(HttpServerExchange exchange) {
-    String message = "An internal server error occurred while processing your request :/";
-    internalServerError(exchange, message);
-  }
-
-  public static void internalServerError(HttpServerExchange exchange, String message) {
-    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
+  public static void unauthorized(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(401, message);
 
     sendResponse(exchange, httpStatusContainer);
   }
@@ -37,14 +32,25 @@ public class HttpStatusSender {
     sendResponse(exchange, httpStatusContainer);
   }
 
-  public static void unauthorized(HttpServerExchange exchange, String message) {
-    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(401, message);
+  public static void notFound(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(404, message);
 
     sendResponse(exchange, httpStatusContainer);
   }
 
   public static void conflict(HttpServerExchange exchange, String message) {
     HttpStatusContainer httpStatusContainer = new HttpStatusContainer(409, message);
+
+    sendResponse(exchange, httpStatusContainer);
+  }
+
+  public static void internalServerError(HttpServerExchange exchange) {
+    String message = "An internal server error occurred while processing your request :/";
+    internalServerError(exchange, message);
+  }
+
+  public static void internalServerError(HttpServerExchange exchange, String message) {
+    HttpStatusContainer httpStatusContainer = new HttpStatusContainer(500, message);
 
     sendResponse(exchange, httpStatusContainer);
   }

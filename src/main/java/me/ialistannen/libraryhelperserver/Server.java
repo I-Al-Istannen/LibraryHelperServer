@@ -32,6 +32,7 @@ import me.ialistannen.libraryhelperserver.server.authentication.UserDeletionEndp
 import me.ialistannen.libraryhelperserver.server.endpoints.AddingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.DeletingApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.LendingApiEndpoint;
+import me.ialistannen.libraryhelperserver.server.endpoints.ModificationEndpoint;
 import me.ialistannen.libraryhelperserver.server.endpoints.SearchApiEndpoint;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.CustomHandlers;
 import me.ialistannen.libraryhelperserver.server.wrappinghandler.HandlerChain;
@@ -120,6 +121,7 @@ public class Server {
             "put", "/add", new AddingApiEndpoint(
                 mutator, isbnConverter, new AmazonIsbnLookupProvider(Locale.GERMAN, isbnConverter)
             ))
+        .authenticated("post", "/modify", new ModificationEndpoint(mutator, browser))
         .authenticated(
             "delete", "/delete", new DeletingApiEndpoint(isbnConverter, mutator)
         )
