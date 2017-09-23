@@ -10,12 +10,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import me.ialistannen.isbnlookuplib.book.Book;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
 import me.ialistannen.isbnlookuplib.lookup.IsbnLookupProvider;
-import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
@@ -23,6 +23,7 @@ import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.Configs;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
+import me.ialistannen.libraryhelperserver.util.OptionalConverter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,7 +57,7 @@ public class AddingApiEndpoint implements HttpHandler {
 
     String isbnString = jsonObject.getAsJsonPrimitive("isbn").getAsString();
 
-    Optional<Isbn> isbnOptional = isbnConverter.fromString(isbnString);
+    Optional<Isbn> isbnOptional = OptionalConverter.toJDK(isbnConverter.fromString(isbnString));
 
     if (!isbnOptional.isPresent()) {
       HttpStatusSender.badRequest(exchange, "Invalid ISBN!");
@@ -65,7 +66,7 @@ public class AddingApiEndpoint implements HttpHandler {
 
     Isbn isbn = isbnOptional.get();
 
-    Optional<Book> bookOptional = isbnLookupProvider.lookup(isbn);
+    Optional<Book> bookOptional = OptionalConverter.toJDK(isbnLookupProvider.lookup(isbn));
 
     if (!bookOptional.isPresent()) {
       HttpStatusSender.internalServerError(exchange, "Isbn lookup failed.");

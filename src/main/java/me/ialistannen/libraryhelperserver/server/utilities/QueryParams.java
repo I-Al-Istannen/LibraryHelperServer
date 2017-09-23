@@ -2,8 +2,8 @@ package me.ialistannen.libraryhelperserver.server.utilities;
 
 import io.undertow.server.HttpServerExchange;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.function.Function;
-import me.ialistannen.isbnlookuplib.util.Optional;
 
 /**
  * Some methods to help deal with query parameters.

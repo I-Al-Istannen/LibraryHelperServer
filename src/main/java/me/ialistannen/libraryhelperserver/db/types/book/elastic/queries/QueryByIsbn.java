@@ -1,8 +1,8 @@
 package me.ialistannen.libraryhelperserver.db.types.book.elastic.queries;
 
 import java.util.List;
+import java.util.Optional;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
-import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.index.query.QueryBuilders;

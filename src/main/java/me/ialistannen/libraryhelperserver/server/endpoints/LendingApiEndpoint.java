@@ -4,10 +4,10 @@ import com.google.gson.JsonObject;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Methods;
+import java.util.Optional;
 import me.ialistannen.isbnlookuplib.book.BookDataKey;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
-import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelpercommon.book.StringBookDataKey;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
@@ -16,6 +16,7 @@ import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByI
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
+import me.ialistannen.libraryhelperserver.util.OptionalConverter;
 
 /**
  * Allows the user to lend books.
@@ -43,7 +44,9 @@ public class LendingApiEndpoint implements HttpHandler {
       HttpStatusSender.badRequest(exchange, "No 'isbn' parameter given");
       return;
     }
-    Optional<Isbn> isbnOptional = isbnConverter.fromString(isbnStringOptional.get());
+    Optional<Isbn> isbnOptional = OptionalConverter.toJDK(
+        isbnConverter.fromString(isbnStringOptional.get())
+    );
 
     if (!isbnOptional.isPresent()) {
       HttpStatusSender.badRequest(exchange, "Invalid ISBN!");

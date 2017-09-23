@@ -6,9 +6,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByAuthorWildcards;
@@ -41,9 +41,9 @@ public class SearchApiEndpoint implements HttpHandler {
     searchTypes.put("isbn", s -> {
       Optional<LoanableBook> bookOptional = QueryByIsbn.forIsbn(s).makeQuery(client);
 
-      return bookOptional.isPresent()
-          ? Collections.singletonList(bookOptional.get())
-          : Collections.emptyList();
+      return bookOptional
+          .map(Collections::singletonList)
+          .orElseGet(Collections::emptyList);
     });
   }
 

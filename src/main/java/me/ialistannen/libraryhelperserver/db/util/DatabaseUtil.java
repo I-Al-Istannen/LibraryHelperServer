@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import me.ialistannen.isbnlookuplib.util.Optional;
+import java.util.Optional;
 import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;

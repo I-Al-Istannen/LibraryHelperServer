@@ -6,16 +6,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Deque;
+import java.util.Optional;
 import java.util.function.Function;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
-import me.ialistannen.isbnlookuplib.util.Optional;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
 import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.Configs;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
+import me.ialistannen.libraryhelperserver.util.OptionalConverter;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,7 +68,7 @@ public class DeletingApiEndpoint implements HttpHandler {
       if (strings.isEmpty()) {
         return Optional.empty();
       }
-      return isbnConverter.fromString(strings.getFirst());
+      return OptionalConverter.toJDK(isbnConverter.fromString(strings.getFirst()));
     };
   }
 
