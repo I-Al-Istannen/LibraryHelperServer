@@ -14,7 +14,6 @@ import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByAuthorWildcards;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByIsbn;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByMatch;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTerm;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTitleRegex;
 import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByWildcards;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
@@ -37,7 +36,9 @@ public class SearchApiEndpoint implements HttpHandler {
     );
     searchTypes.put("title_match", s -> QueryByMatch.forQuery(s, "title").makeQuery(client));
     searchTypes.put("author_wildcard", s -> QueryByAuthorWildcards.forQuery(s).makeQuery(client));
-    searchTypes.put("location", s -> QueryByTerm.forQuery(s, "location").makeQuery(client));
+    searchTypes.put("location_match", s ->
+        QueryByMatch.forQuery(s, "location").makeQuery(client)
+    );
     searchTypes.put("isbn", s -> {
       Optional<LoanableBook> bookOptional = QueryByIsbn.forIsbn(s).makeQuery(client);
 
