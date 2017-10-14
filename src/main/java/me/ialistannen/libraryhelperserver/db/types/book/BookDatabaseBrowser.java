@@ -2,7 +2,8 @@ package me.ialistannen.libraryhelperserver.db.types.book;
 
 import java.util.List;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.Query;
+import me.ialistannen.libraryhelperserver.db.queries.QueryField;
+import me.ialistannen.libraryhelperserver.model.search.SearchType;
 
 /**
  * The interface to allow you browsing the books.
@@ -31,9 +32,10 @@ public interface BookDatabaseBrowser {
   /**
    * Executes a query and returns the result.
    *
-   * @param query The {@link Query} to execute
-   * @param <T> The return type of the query
+   * @param query The query string
+   * @param searchType The {@link SearchType}
+   * @param field The {@link QueryField} to query
    * @return Everything that matched the query
    */
-  <T> T getForQuery(Query<T> query);
+  List<LoanableBook> getForQuery(SearchType searchType, QueryField field, String query);
 }

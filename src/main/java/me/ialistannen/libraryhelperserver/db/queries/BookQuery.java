@@ -1,4 +1,4 @@
-package me.ialistannen.libraryhelperserver.db.types.book.elastic.queries;
+package me.ialistannen.libraryhelperserver.db.queries;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,19 +13,17 @@ import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 
 /**
- * A database query.
+ * A query for books.
  */
-public abstract class Query<T> {
+public abstract class BookQuery<T extends QueryOptions> implements Query<List<LoanableBook>, T> {
 
-  /**
-   * Executes a query given a {@link TransportClient}.
-   *
-   * @param client The client to use for the query
-   * @return The result of running it
-   */
-  // Taking a TransportClient breaks the abstraction, but I will be fine with that as I
-  // have no clue how to change it for good
-  public abstract T makeQuery(TransportClient client);
+  @Override
+  public List<LoanableBook> performQuery(TransportClient client, T options) {
+    return hitsToBooks(search(
+        client,
+        getQueryBuilder(client, options)
+    ));
+  }
 
   /**
    * @param client The {@link TransportClient} to use
@@ -60,4 +58,13 @@ public abstract class Query<T> {
 
     return result;
   }
+
+  /**
+   * Returns the {@link QueryBuilder} this query would use.
+   *
+   * @param client The {@link TransportClient} to use
+   * @param options The query options
+   * @return The {@link QueryBuilder} it would use
+   */
+  public abstract QueryBuilder getQueryBuilder(TransportClient client, T options);
 }

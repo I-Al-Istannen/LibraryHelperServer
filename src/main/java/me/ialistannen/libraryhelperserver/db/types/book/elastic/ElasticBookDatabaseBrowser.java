@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelperserver.db.creation.elastic.ElasticDatabaseCreator.StringConstant;
+import me.ialistannen.libraryhelperserver.db.queries.QueryField;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.Query;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
+import me.ialistannen.libraryhelperserver.model.search.SearchType;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.unit.TimeValue;
@@ -72,7 +73,7 @@ public class ElasticBookDatabaseBrowser implements BookDatabaseBrowser {
   }
 
   @Override
-  public <T> T getForQuery(Query<T> query) {
-    return query.makeQuery(client);
+  public List<LoanableBook> getForQuery(SearchType searchType, QueryField field, String query) {
+    return field.performQuery(query, searchType, client);
   }
 }

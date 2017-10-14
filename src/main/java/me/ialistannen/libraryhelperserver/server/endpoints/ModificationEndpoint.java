@@ -2,16 +2,18 @@ package me.ialistannen.libraryhelperserver.server.endpoints;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import me.ialistannen.isbnlookuplib.book.BookDataKey;
 import me.ialistannen.isbnlookuplib.book.StandardBookDataKeys;
 import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
+import me.ialistannen.libraryhelperserver.db.queries.QueryField;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByIsbn;
 import me.ialistannen.libraryhelperserver.db.util.exceptions.DatabaseException;
+import me.ialistannen.libraryhelperserver.model.search.SearchType;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
@@ -55,17 +57,17 @@ public class ModificationEndpoint implements HttpHandler {
 
     String isbnString = isbnStringOptional.get();
 
-    Optional<LoanableBook> storedBookOptional = databaseBrowser.getForQuery(
-        QueryByIsbn.forIsbn(isbnString)
+    List<LoanableBook> storedBookOptional = databaseBrowser.getForQuery(
+        SearchType.EXACT_MATCH, QueryField.ISBN, isbnString
     );
 
-    if (!storedBookOptional.isPresent()) {
+    if (storedBookOptional.isEmpty()) {
       HttpStatusSender.notFound(exchange, "A book with that ISBN was not found");
       return;
     }
 
     LoanableBook changedBook = intermediaryBookOptional.get().toLoanableBook();
-    LoanableBook storedBook = storedBookOptional.get();
+    LoanableBook storedBook = storedBookOptional.get(0);
 
     if (!areIsbnsEqual(storedBook, changedBook)) {
       HttpStatusSender.badRequest(exchange, "The Isbn does not match the stored book.");

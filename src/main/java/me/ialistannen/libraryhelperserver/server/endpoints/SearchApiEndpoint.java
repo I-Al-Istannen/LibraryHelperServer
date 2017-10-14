@@ -2,50 +2,39 @@ package me.ialistannen.libraryhelperserver.server.endpoints;
 
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import me.ialistannen.libraryhelpercommon.book.IntermediaryBook;
-import me.ialistannen.libraryhelpercommon.book.LoanableBook;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByAuthorWildcards;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByIsbn;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByMatch;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByTitleRegex;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByWildcards;
+import me.ialistannen.libraryhelperserver.db.queries.QueryField;
+import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.util.DatabaseUtil;
+import me.ialistannen.libraryhelperserver.model.search.SearchType;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.server.utilities.QueryParams;
-import org.elasticsearch.client.transport.TransportClient;
+import me.ialistannen.libraryhelperserver.util.EnumUtil;
 
 /**
  * The endpoint for searching.
  */
 public class SearchApiEndpoint implements HttpHandler {
 
-  private final Map<String, Function<String, List<LoanableBook>>> searchTypes = new HashMap<>();
+  private final Map<String, QueryField> queryFieldMap = EnumUtil
+      .getReverseMapping(QueryField.class, this::formatEnumName);
+  private final Map<String, SearchType> searchTypeMap = EnumUtil
+      .getReverseMapping(SearchType.class, this::formatEnumName);
 
-  public SearchApiEndpoint(TransportClient client) {
-    searchTypes.put("title_regex", s -> QueryByTitleRegex.forRegex(s).makeQuery(client));
-    searchTypes.put("title_wildcard", s ->
-        QueryByWildcards.forQuery(s, "title.raw").makeQuery(client)
-    );
-    searchTypes.put("title_match", s -> QueryByMatch.forQuery(s, "title").makeQuery(client));
-    searchTypes.put("author_wildcard", s -> QueryByAuthorWildcards.forQuery(s).makeQuery(client));
-    searchTypes.put("location_match", s ->
-        QueryByMatch.forQuery(s, "location").makeQuery(client)
-    );
-    searchTypes.put("isbn", s -> {
-      Optional<LoanableBook> bookOptional = QueryByIsbn.forIsbn(s).makeQuery(client);
+  private BookDatabaseBrowser bookDatabaseBrowser;
 
-      return bookOptional
-          .map(Collections::singletonList)
-          .orElseGet(Collections::emptyList);
-    });
+  public SearchApiEndpoint(BookDatabaseBrowser bookDatabaseBrowser) {
+    this.bookDatabaseBrowser = bookDatabaseBrowser;
+  }
+
+  private String formatEnumName(Enum<?> enumEntry) {
+    return enumEntry.name().toLowerCase();
   }
 
   @Override
@@ -53,33 +42,63 @@ public class SearchApiEndpoint implements HttpHandler {
     String query = Exchange.queryParams()
         .getTransformed(exchange, "query", QueryParams.combined(" "));
 
-    Optional<String> searchType = Exchange.queryParams()
-        .getSingle(exchange, "search_type");
-
     if (query == null) {
       HttpStatusSender.badRequest(exchange, "You must pass a 'query' parameter.");
       return;
     }
-    if (!searchType.isPresent()) {
-      HttpStatusSender.badRequest(exchange, "You must pass a 'search_type' parameter.");
-      return;
-    }
-    if (!searchTypes.containsKey(searchType.get())) {
-      HttpStatusSender.badRequest(exchange, String.format(
-          "Invalid search_type: '%s'. Allowed are '%s'",
-          searchType.get(), String.join(", ", searchTypes.keySet())
-      ));
+
+    Optional<String> searchTypeName = getParameterIfValid(
+        exchange, "search_type", searchTypeMap.keySet()
+    );
+    if (!searchTypeName.isPresent()) {
       return;
     }
 
-    List<IntermediaryBook> books = searchTypes.get(searchType.get())
-        .apply(query)
+    Optional<String> fieldName = getParameterIfValid(
+        exchange, "field", queryFieldMap.keySet()
+    );
+    if (!fieldName.isPresent()) {
+      return;
+    }
+
+    QueryField queryField = queryFieldMap.get(fieldName.get());
+    SearchType searchType = searchTypeMap.get(searchTypeName.get());
+
+    if (searchType != SearchType.FUZZY && !queryField.hasRawSubField()) {
+      HttpStatusSender.badRequest(
+          exchange,
+          String.format("The field '%s' can only be searched fuzzily", fieldName.get())
+      );
+      return;
+    }
+
+    List<IntermediaryBook> books = bookDatabaseBrowser.getForQuery(searchType, queryField, query)
         .stream()
         .map(IntermediaryBook::fromLoanableBook)
         .collect(Collectors.toList());
-
     String json = DatabaseUtil.getGson().toJson(books);
 
     Exchange.body().sendJson(exchange, json);
+  }
+
+  private Optional<String> getParameterIfValid(HttpServerExchange exchange, String name,
+      Collection<String> allowedChoices) {
+
+    Optional<String> single = Exchange.queryParams().getSingle(exchange, name);
+
+    if (!single.isPresent()) {
+      HttpStatusSender.badRequest(exchange, String.format("You must pass a '%s' parameter.", name));
+      return Optional.empty();
+    }
+
+    if (!allowedChoices.contains(single.get())) {
+      HttpStatusSender.badRequest(exchange, String.format(
+          "Invalid search_type: '%s'. Allowed are '%s'",
+          single.get(), String.join(", ", allowedChoices)
+      ));
+      return Optional.empty();
+    }
+
+    return single;
   }
 }

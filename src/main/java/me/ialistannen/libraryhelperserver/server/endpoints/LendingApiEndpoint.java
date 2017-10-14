@@ -4,15 +4,17 @@ import com.google.gson.JsonObject;
 import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 import io.undertow.util.Methods;
+import java.util.List;
 import java.util.Optional;
 import me.ialistannen.isbnlookuplib.book.BookDataKey;
 import me.ialistannen.isbnlookuplib.isbn.Isbn;
 import me.ialistannen.isbnlookuplib.isbn.IsbnConverter;
 import me.ialistannen.libraryhelpercommon.book.LoanableBook;
 import me.ialistannen.libraryhelpercommon.book.StringBookDataKey;
+import me.ialistannen.libraryhelperserver.db.queries.QueryField;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseBrowser;
 import me.ialistannen.libraryhelperserver.db.types.book.BookDatabaseMutator;
-import me.ialistannen.libraryhelperserver.db.types.book.elastic.queries.QueryByIsbn;
+import me.ialistannen.libraryhelperserver.model.search.SearchType;
 import me.ialistannen.libraryhelperserver.server.utilities.Exchange;
 import me.ialistannen.libraryhelperserver.server.utilities.HttpStatusSender;
 import me.ialistannen.libraryhelperserver.util.MapBuilder;
@@ -53,11 +55,13 @@ public class LendingApiEndpoint implements HttpHandler {
       return;
     }
 
-    Optional<LoanableBook> bookOptional = databaseBrowser
-        .getForQuery(QueryByIsbn.forIsbn(isbnOptional.get()));
+    List<LoanableBook> bookOptional = databaseBrowser
+        .getForQuery(
+            SearchType.EXACT_MATCH, QueryField.ISBN, isbnOptional.get().getDigitsAsString()
+        );
 
     if (exchange.getRequestMethod().equals(Methods.PUT)) {
-      if (!bookOptional.isPresent()) {
+      if (bookOptional.isEmpty()) {
         HttpStatusSender.badRequest(exchange, "Book not known");
         return;
       }
@@ -74,7 +78,7 @@ public class LendingApiEndpoint implements HttpHandler {
       }
       String borrower = jsonObject.getAsJsonPrimitive("borrower").getAsString();
 
-      LoanableBook loanableBook = bookOptional.get();
+      LoanableBook loanableBook = bookOptional.get(0);
       loanableBook.setData(BORROWER_KEY, borrower);
 
       // update it in this case. Though elastic will reindex the whole document
@@ -82,8 +86,8 @@ public class LendingApiEndpoint implements HttpHandler {
 
       Exchange.body().sendJson(exchange, MapBuilder.of("added", true).build());
     } else if (exchange.getRequestMethod().equals(Methods.DELETE)) {
-      if (bookOptional.isPresent()) {
-        LoanableBook loanableBook = bookOptional.get();
+      if (!bookOptional.isEmpty()) {
+        LoanableBook loanableBook = bookOptional.get(0);
         loanableBook.removeData(BORROWER_KEY);
         databaseMutator.addBook(loanableBook);
       }

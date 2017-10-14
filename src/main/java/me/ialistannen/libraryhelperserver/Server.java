@@ -116,7 +116,7 @@ public class Server {
                 userDatabaseMutator, userDatabaseBrowser
             )
         )
-        .authenticated("get", "/search", new SearchApiEndpoint(client))
+        .authenticated("get", "/search", new SearchApiEndpoint(browser))
         .authenticated(
             "put", "/add", new AddingApiEndpoint(
                 mutator, isbnConverter, new AmazonIsbnLookupProvider(Locale.GERMAN, isbnConverter)
