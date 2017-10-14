@@ -14,7 +14,7 @@ public class RegexQuery extends BookQuery<BasicQueryOptions> {
   @Override
   public QueryBuilder getQueryBuilder(TransportClient client, BasicQueryOptions options) {
     return QueryBuilders.regexpQuery(
-        options.getFieldName() + ".raw", options.getQueryString().toLowerCase()
+        options.getRawFieldName(), options.getQueryString().toLowerCase()
     );
   }
 }

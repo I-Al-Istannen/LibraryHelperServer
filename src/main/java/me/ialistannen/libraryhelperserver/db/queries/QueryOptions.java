@@ -9,10 +9,12 @@ public interface QueryOptions {
 
     private String queryString;
     private String fieldName;
+    private final String rawFieldName;
 
-    public BasicQueryOptions(String queryString, String fieldName) {
+    public BasicQueryOptions(String queryString, String fieldName, String rawFieldName) {
       this.queryString = queryString;
       this.fieldName = fieldName;
+      this.rawFieldName = rawFieldName;
     }
 
     public String getQueryString() {
@@ -21,6 +23,10 @@ public interface QueryOptions {
 
     public String getFieldName() {
       return fieldName;
+    }
+
+    public String getRawFieldName() {
+      return rawFieldName;
     }
   }
 }

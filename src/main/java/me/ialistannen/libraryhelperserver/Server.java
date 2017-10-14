@@ -48,6 +48,8 @@ import org.pac4j.core.config.Config;
  */
 public class Server {
 
+  // TODO: 14.10.17 Add support for location in intermediary book?
+
   private static HttpHandler wrapWithBasicHandlers(HttpHandler handler) {
     return HandlerChain.start(CustomHandlers::gzip)
         .next(BlockingHandler::new)

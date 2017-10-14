@@ -14,8 +14,7 @@ public class WildcardQuery extends BookQuery<BasicQueryOptions> {
   @Override
   public QueryBuilder getQueryBuilder(TransportClient client, BasicQueryOptions options) {
     return QueryBuilders.wildcardQuery(
-        options.getFieldName() + ".raw",
-        options.getQueryString().toLowerCase()
+        options.getRawFieldName(), options.getQueryString().toLowerCase()
     );
   }
 }

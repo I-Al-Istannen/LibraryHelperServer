@@ -12,22 +12,28 @@ import org.elasticsearch.client.transport.TransportClient;
  * The different query fields that exist.
  */
 public enum QueryField {
-  AUTHOR("authors", "authors.key", true),
-  TITLE("title", true),
-  ISBN("isbn", true);
+  AUTHOR("authors", "authors.key", ".raw"),
+  TITLE("title", ".raw"),
+  ISBN("isbn", ".raw"),
+  LOCATION("location", ".raw");
 
   private String fieldName;
   private String nestedFieldPath;
+  private String rawFieldSuffix;
   private boolean nested;
   private boolean hasRawSubField;
 
-  QueryField(String fieldName, boolean hasRawSubField) {
+  QueryField(String fieldName, String rawSubfieldSuffix) {
     this.fieldName = fieldName;
-    this.hasRawSubField = hasRawSubField;
+
+    if (rawSubfieldSuffix != null) {
+      this.rawFieldSuffix = rawSubfieldSuffix;
+      this.hasRawSubField = true;
+    }
   }
 
-  QueryField(String fieldName, String nestedFieldPath, boolean hasRawSubField) {
-    this(fieldName, hasRawSubField);
+  QueryField(String fieldName, String nestedFieldPath, String rawSubfieldSuffix) {
+    this(fieldName, rawSubfieldSuffix);
     this.nestedFieldPath = nestedFieldPath;
     this.nested = true;
   }
@@ -38,7 +44,6 @@ public enum QueryField {
   public boolean hasRawSubField() {
     return hasRawSubField;
   }
-
 
   /**
    * @param query The {@link Query} to perform
@@ -69,7 +74,9 @@ public enum QueryField {
     }
 
     @SuppressWarnings("unchecked")
-    T queryOptions = (T) new BasicQueryOptions(query, fieldName);
+    T queryOptions = (T) new BasicQueryOptions(
+        query, fieldName, fieldName + rawFieldSuffix
+    );
     return queryOptions;
   }
 
@@ -82,7 +89,9 @@ public enum QueryField {
 
   @SuppressWarnings("unchecked")
   private <T extends QueryOptions> T getNestedQueryOptions(String query, BookQuery<T> bookQuery) {
-    T otherOptions = (T) new BasicQueryOptions(query, nestedFieldPath);
+    T otherOptions = (T) new BasicQueryOptions(
+        query, nestedFieldPath, nestedFieldPath + rawFieldSuffix
+    );
 
     return (T) new NestedQueryOptions<>(fieldName, bookQuery, otherOptions);
   }
